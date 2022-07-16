@@ -75,7 +75,7 @@ namespace Editions
                         { typeof(DamageDeckCardFE.WeaponsFailure),      2 },
                         { typeof(DamageDeckCardFE.ConsoleFire),         2 },
                         { typeof(DamageDeckCardFE.StunnedPilot),        2 },
-                        { typeof(DamageDeckCardFE.MajorHullBreach),     2 },
+                        { typeof(DamageDeckCardFE.MinorHullBreach),     2 },
                         { typeof(DamageDeckCardFE.MajorExplosion),      2 }
                     };
                 }
