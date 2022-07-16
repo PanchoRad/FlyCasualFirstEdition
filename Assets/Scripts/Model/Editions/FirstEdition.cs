@@ -127,7 +127,17 @@ namespace Editions
 
         public override void SetShipBaseImage(GenericShip ship)
         {
-            ship.SetShipBaseImageFirstEdition();
+            ship.SetShipBaseImageFirstEditionV2();
+        }
+
+        public override void RotateMobileFiringArc(GenericArc arc, ArcFacing facing)    // FG Added (was in Second Edition)
+        {
+            arc.ShipBase.Host.ShowMobileFiringArcHighlight(facing);
+        }
+
+        public override void RotateMobileFiringArcAlt(GenericArc arc, ArcFacing facing)   // FG Added (was in Second Edition)
+        {
+            arc.ShipBase.Host.ShowMobileFiringArcAltHighlight(facing);
         }
 
         public override void BarrelRollTemplatePlanning()

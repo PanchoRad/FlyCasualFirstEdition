@@ -158,6 +158,122 @@ namespace Ship
             }
         }
 
+        public void SetShipBaseImageFirstEditionV2()
+        {
+            //var pathToResource = "ShipStandInsert/" + FixTypeName(ModelInfo.ModelName) + "/" + materialName;
+            //var shipBaseInsert = CreateMaterial(pathToResource);
+
+            string newTexture = "ShipStandInsert/Universal/FirstEdition/" + this.ShipInfo.BaseSize.ToString() + "/Base";
+            Material newMaterial = CreateMaterial(newTexture);
+            ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/default").GetComponent<Renderer>().material = newMaterial;
+            ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/default").GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+            //Ship Info
+            newTexture = "ShipStandInsert/Universal/FirstEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.Faction.ToString() + "/Info";
+            newMaterial = CreateMaterial(newTexture);
+            StandardShaderUtils.ChangeRenderMode(newMaterial, StandardShaderUtils.BlendMode.Cutout);
+            ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipInfo").GetComponent<Renderer>().material = newMaterial;
+            ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipInfo").GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipInfo").GetComponent<MeshRenderer>().enabled = true;
+
+            //Ship Stats
+            newTexture = "ShipStandInsert/Universal/FirstEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.ShipInfo.Firepower.ToString() + "_" +
+                                                                     this.ShipInfo.Agility.ToString() + "_" + this.ShipInfo.Hull.ToString() + "_" + this.ShipInfo.Shields.ToString();
+            newMaterial = CreateMaterial(newTexture);
+            StandardShaderUtils.ChangeRenderMode(newMaterial, StandardShaderUtils.BlendMode.Cutout);
+            ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipStats").GetComponent<Renderer>().material = newMaterial;
+            ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipStats").GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipStats").GetComponent<MeshRenderer>().enabled = true;
+
+            //Forward arc
+            ArcFront arcPrimary = ArcsInfo.GetArc<ArcFront>();
+            if ((arcPrimary != null && ArcsInfo.HasArc(ArcType.Front) && !(ArcsInfo.HasArc(ArcType.SingleTurret)) && !(ArcsInfo.HasArc(ArcType.DoubleTurret))) ||
+                ((arcPrimary != null && ArcsInfo.HasArc(ArcType.Front) && (this.UpgradeBar.HasUpgradeTypeInstalled(Upgrade.UpgradeType.Turret)))))
+            {  // don't show Front Arc if the ship has a Single or Double Turret
+                newTexture = "ShipStandInsert/Universal/FirstEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.Faction.ToString() + "/Front";
+                newMaterial = CreateMaterial(newTexture);
+                StandardShaderUtils.ChangeRenderMode(newMaterial, StandardShaderUtils.BlendMode.Fade);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/FirstArc").GetComponent<Renderer>().material = newMaterial;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/FirstArc").GetComponent<Renderer>().material.color = new Color(1, 1, 1, 0.5f);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/FirstArc").GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/FirstArc").GetComponent<MeshRenderer>().enabled = true;
+            }
+            else if (ArcsInfo.HasArc(ArcType.FullFront))
+            {
+                newTexture = "ShipStandInsert/Universal/FirstEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.Faction.ToString() + "/FullFront";
+                newMaterial = CreateMaterial(newTexture);
+                StandardShaderUtils.ChangeRenderMode(newMaterial, StandardShaderUtils.BlendMode.Fade);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/FirstArc").GetComponent<Renderer>().material = newMaterial;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/FirstArc").GetComponent<Renderer>().material.color = new Color(1, 1, 1, 0.5f);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/FirstArc").GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/FirstArc").GetComponent<MeshRenderer>().enabled = true;
+            }
+
+            //Rear arc
+            if (ArcsInfo.Arcs.Any(n => n.Facing == ArcFacing.Rear))
+            {
+                newTexture = "ShipStandInsert/Universal/FirstEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.Faction.ToString() + "/Rear";
+                newMaterial = CreateMaterial(newTexture);
+                StandardShaderUtils.ChangeRenderMode(newMaterial, StandardShaderUtils.BlendMode.Fade);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/SecondArc").GetComponent<Renderer>().material = newMaterial;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/SecondArc").GetComponent<Renderer>().material.color = new Color(1, 1, 1, 0.5f);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/SecondArc").GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/SecondArc").GetComponent<MeshRenderer>().enabled = true;
+            }
+            else
+            {
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/SecondArc").GetComponent<MeshRenderer>().enabled = false;
+            }
+
+            if (this.ShipInfo.BaseSize == BaseSize.Large)
+            {
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotName").GetComponent<TextMesh>().text = ShortenPilotName(this.PilotInfo.PilotName);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotName").GetComponent<TextMesh>().transform.localPosition = new Vector3(1f, 0.08f, -5.1f);
+
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().text = this.State.Initiative.ToString();
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().fontSize = 150;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().characterSize = 0.1f;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().transform.localPosition = new Vector3(-3.4f, 0.08f, -6.1f);
+
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().text = (ShipIconLetter != '*') ? ShipIconLetter.ToString() : "";
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().fontSize = 150;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().characterSize = 0.25f;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().transform.localPosition = new Vector3(-4.5f, 0.08f, 0.7f);
+            }
+            else if (this.ShipInfo.BaseSize == BaseSize.Small)
+            {
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotName").GetComponent<TextMesh>().text = ShortenPilotName(this.PilotInfo.PilotName);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotName").GetComponent<TextMesh>().transform.localPosition = new Vector3(1f, 0.08f, -2.1f);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotName").GetComponent<TextMesh>().fontSize = 15;
+
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().text = this.State.Initiative.ToString();
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().fontSize = 170;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().characterSize = 0.1f;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().transform.localPosition = new Vector3(-2f, 0.08f, -1.4f);
+
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().text = (ShipIconLetter != '*') ? ShipIconLetter.ToString() : "";
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().fontSize = 100;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().characterSize = 0.25f;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().transform.localPosition = new Vector3(-2f, 0.08f, 0.7f);
+            }
+            else if (this.ShipInfo.BaseSize == BaseSize.Medium)
+            {
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotName").GetComponent<TextMesh>().text = ShortenPilotName(this.PilotInfo.PilotName);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotName").GetComponent<TextMesh>().transform.localPosition = new Vector3(1f, 0.08f, -5.1f);
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotName").GetComponent<TextMesh>().fontSize = 15;
+
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().text = this.State.Initiative.ToString();
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().fontSize = 170;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().characterSize = 0.1f;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/PilotSkill").GetComponent<TextMesh>().transform.localPosition = new Vector3(-3.3f, 0.08f, -6.1f);
+
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().text = (ShipIconLetter != '*') ? ShipIconLetter.ToString() : "";
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().fontSize = 100;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().characterSize = 0.4f;
+                ShipAllParts.Find("ShipBase/ShipStandInsert/ShipStandInsertImage/ShipIcon").GetComponent<TextMesh>().transform.localPosition = new Vector3(-4f, 0.08f, 0.7f);
+            }
+        }
+
         public void SetShipBaseImageSecondEdition()
         {
             string newTexture = "ShipStandInsert/Universal/SecondEdition/" + this.ShipInfo.BaseSize.ToString() + "/Base";
