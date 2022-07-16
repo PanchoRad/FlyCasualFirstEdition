@@ -186,15 +186,17 @@ namespace Editions
 
         public override string GetPilotImageUrl(GenericShip ship, string filename)
         {
-            return RootUrlForImages + "pilots/" + ImageUrls.FormatFaction(ship.SubFaction) + "/" + ImageUrls.FormatShipType(ship.ShipInfo.ShipName) + "/" + (filename ?? (ImageUrls.FormatName(ship.PilotInfo.PilotName) + ".png"));
+            string URL = RootUrlForImages + "pilots/" + ImageUrls.FormatFaction(ship.SubFaction) + "/" + ImageUrls.FormatShipType(ship.ShipInfo.ShipName) + "/" + (filename ?? (ImageUrls.FormatName(ship.PilotInfo.PilotName) + ".png"));
+            return URL;
         }
 
         public override string GetUpgradeImageUrl(GenericUpgrade upgrade, string filename = null)
         {
-            return RootUrlForImages
+            string URL= RootUrlForImages
                 + "upgrades/" + ImageUrls.FormatUpgradeTypes(upgrade.UpgradeInfo.UpgradeTypes)
                 + "/" + ImageUrls.FormatName(filename ?? ImageUrls.FormatUpgradeName(upgrade.UpgradeInfo.Name))
                 + ".png";
+            return URL;
         }
 
         public override string FactionToXws(Faction faction)
