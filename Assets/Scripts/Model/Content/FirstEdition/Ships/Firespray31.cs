@@ -5,6 +5,8 @@ using ActionsList;
 using Actions;
 using Arcs;
 using Upgrade;
+using Mods;
+using Mods.ModsList;
 
 namespace Ship
 {
@@ -17,7 +19,7 @@ namespace Ship
                 ShipInfo = new ShipCardInfo
                 (
                     "Firespray-31",
-                    BaseSize.Large,
+                    (ModsManager.Mods[typeof(MediumBasesFEMod)].IsOn) ? BaseSize.Medium : BaseSize.Large,  // FG Medium Base MOD
                     Faction.Imperial,
                     new ShipArcsInfo(
                         new ShipArcInfo(ArcType.Front, 3),

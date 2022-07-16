@@ -6,6 +6,8 @@ using Actions;
 using Arcs;
 using Upgrade;
 using UnityEngine;
+using Mods;
+using Mods.ModsList;
 
 namespace Ship
 {
@@ -18,7 +20,7 @@ namespace Ship
                 ShipInfo = new ShipCardInfo
                 (
                     "TIE Punisher",
-                    BaseSize.Small,
+                    (ModsManager.Mods[typeof(MediumBasesFEMod)].IsOn) ? BaseSize.Medium : BaseSize.Small,  // FG Medium Base MOD
                     Faction.Imperial,
                     new ShipArcsInfo(ArcType.Front, 2), 1, 6, 3,
                     new ShipActionsInfo(

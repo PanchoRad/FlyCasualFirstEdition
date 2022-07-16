@@ -6,6 +6,8 @@ using Actions;
 using Arcs;
 using Upgrade;
 using UnityEngine;
+using Mods;
+using Mods.ModsList;
 
 namespace Ship
 {
@@ -18,7 +20,7 @@ namespace Ship
                 ShipInfo = new ShipCardInfo
                 (
                     "M12-L Kimogila Fighter",
-                    BaseSize.Small,
+                    (ModsManager.Mods[typeof(MediumBasesFEMod)].IsOn) ? BaseSize.Medium : BaseSize.Small,  // FG Medium Base MOD
                     Faction.Scum,
                     new ShipArcsInfo(
                         new ShipArcInfo(ArcType.Front, 3),

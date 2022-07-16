@@ -6,6 +6,8 @@ using ActionsList;
 using Arcs;
 using Upgrade;
 using UnityEngine;
+using Mods;
+using Mods.ModsList;
 
 namespace Ship.FirstEdition.KWing
 {
@@ -16,7 +18,7 @@ namespace Ship.FirstEdition.KWing
             ShipInfo = new ShipCardInfo
             (
                 "K-wing",
-                BaseSize.Small,
+                (ModsManager.Mods[typeof(MediumBasesFEMod)].IsOn) ? BaseSize.Medium : BaseSize.Small,  // FG Medium Base MOD
                 Faction.Rebel,
                 new ShipArcsInfo(
                     new ShipArcInfo(ArcType.Front, 2),

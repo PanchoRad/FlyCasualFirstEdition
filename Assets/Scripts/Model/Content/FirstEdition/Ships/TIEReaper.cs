@@ -5,6 +5,8 @@ using ActionsList;
 using Actions;
 using Arcs;
 using Upgrade;
+using Mods;
+using Mods.ModsList;
 
 namespace Ship
 {
@@ -17,7 +19,7 @@ namespace Ship
                 ShipInfo = new ShipCardInfo
                 (
                     "TIE Reaper",
-                    BaseSize.Small,
+                    (ModsManager.Mods[typeof(MediumBasesFEMod)].IsOn) ? BaseSize.Medium : BaseSize.Small,  // FG Medium Base MOD
                     Faction.Imperial,
                     new ShipArcsInfo(ArcType.Front, 3), 1, 6, 2,
                     new ShipActionsInfo(

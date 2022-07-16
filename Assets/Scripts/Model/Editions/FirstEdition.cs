@@ -89,6 +89,7 @@ namespace Editions
                 {
                     { BaseSize.None,    int.MaxValue },
                     { BaseSize.Small,   1 },
+                    { BaseSize.Medium,  2 },
                     { BaseSize.Large,   2 }
                 };
             }

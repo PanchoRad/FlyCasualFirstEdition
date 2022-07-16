@@ -6,6 +6,8 @@ using ActionsList;
 using Arcs;
 using Upgrade;
 using UnityEngine;
+using Mods;
+using Mods.ModsList;
 
 namespace Ship.FirstEdition.ScurrgH6Bomber
 {
@@ -16,7 +18,7 @@ namespace Ship.FirstEdition.ScurrgH6Bomber
             ShipInfo = new ShipCardInfo
             (
                 "Scurrg H-6 Bomber",
-                BaseSize.Small,
+                (ModsManager.Mods[typeof(MediumBasesFEMod)].IsOn) ? BaseSize.Medium : BaseSize.Small,  // FG Medium Base MOD
                 Faction.Scum,
                 new ShipArcsInfo(ArcType.Front, 3), 1, 5, 5,
                 new ShipActionsInfo(
