@@ -10,7 +10,7 @@ namespace UpgradesList.FirstEdition
         public WeaponsGuildance() : base()
         {
             UpgradeInfo = new UpgradeCardInfo(
-                "Weapons Guildance",
+                "Weapons Guidance",
                 UpgradeType.Tech,
                 cost: 2,
                 abilityType: typeof(Abilities.FirstEdition.WeaponsGuildanceAbility)
