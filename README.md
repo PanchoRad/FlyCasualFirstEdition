@@ -1,5 +1,11 @@
-# Fly Casual
+# Fly Casual - First Edition Developement Branch
 
+# FlyCasual_FE
+This project is a development branch for the famous FlyCasual X-Wing Miniature fan-made game lead by Sandrem.   It is an independent development tree forked from the final First Edition (FE) version :  Sandrem/FlyCasualFirstEdition:development
+
+Disclaimer.  This project is developed for fun and for learning UNITY all-together.   As for the original version, this project tree is open-source and the development attempt to follow the original development philosophy (to be the best of my coding capabilities).  Features will be added in an incremental basis so that it can benefit other developement branches of Fly Casual.   I offer no guarantees on game stability or plateform support and welcome any tips/advices or help to further develop this branch.
+
+----------------
 Fly Casual is a fan-made ["Star Wars: X-Wing Miniatures Game"](https://www.fantasyflightgames.com/en/products/x-wing) simulator.
 
 Features:
