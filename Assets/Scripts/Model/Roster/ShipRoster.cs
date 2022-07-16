@@ -176,11 +176,16 @@ public static partial class Roster
     {
         AllUnits.Add(newShip.GetTag(), newShip);
         newShip.Owner.Units.Add(newShip.GetTag(), newShip);
+        if (newShip.Tokens.HasToken(typeof(Conditions.FreeRotateArcCondition)))
+        {
+            newShip.Tokens.RemoveCondition(typeof(Conditions.FreeRotateArcCondition));  // Force a condition change to update TokenBar
+            newShip.Tokens.AssignCondition(typeof(Conditions.FreeRotateArcCondition));
+        }
     }
 
-    //SHIP DESTRUCTION
+//SHIP DESTRUCTION
 
-    public static void RemoveDestroyedShip(string id)
+public static void RemoveDestroyedShip(string id)
     {
         HideShip(id);
 

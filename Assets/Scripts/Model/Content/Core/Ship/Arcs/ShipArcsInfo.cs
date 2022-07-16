@@ -11,12 +11,23 @@ namespace Ship
         public ArcType ArcType { get; private set; }
         public int Firepower { get; set; }
         public string Name { get; private set; }
+        public bool isPrimaryWeaponArc { get; private set; }  //FG
 
         public ShipArcInfo(ArcType arcType, int firepower = -1)
         {
             ArcType = arcType;
             Firepower = firepower;
             Name = GetArcName(arcType);
+            isPrimaryWeaponArc = true; //FG
+        }
+        public void SetAsPrimaryWeaponArc(bool PrimaryWeaponArc)
+        {
+            isPrimaryWeaponArc = PrimaryWeaponArc;
+        }
+
+        public void ChangeArcType(ArcType fromArcType, ArcType toArcType) //FG Added for FE1.5 MOD
+        {
+            if (ArcType == fromArcType) ArcType = toArcType;
         }
 
         private string GetArcName(ArcType arcType)
@@ -72,6 +83,16 @@ namespace Ship
         public ShipArcsInfo(ArcType arcType, int firepower)
         {
             Arcs = new List<ShipArcInfo>() { new ShipArcInfo(arcType, firepower) };
+        }
+
+        public void ChangeArcType(ArcType fromArcType, ArcType toArcType)
+        {
+            int index = Arcs.FindIndex(n => n.ArcType == fromArcType);
+            int firepower = Arcs[index].Firepower;
+            ShipArcInfo newArc = new ShipArcInfo(toArcType, firepower);
+            Arcs[index] = newArc;
+            // Additional MOD play (v1.5)  FG
+            //ArcType = toArcType;
         }
 
         public bool IsMobileTurretShip()

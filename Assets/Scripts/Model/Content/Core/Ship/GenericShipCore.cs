@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Arcs;
+using Mods;
+using Mods.ModsList;
 using Abilities;
 using System;
+using System.Linq;
 using Editions;
 using Upgrade;
 using Players;
@@ -175,6 +178,18 @@ namespace Ship
         {
             InitializePilotForSquadBuilder();
 
+            // FG: Mobile Turrets MOD
+            if (ModsManager.Mods[typeof(MobileTurretFEMod)].IsOn)
+            {
+                // replace TurretPrimaryWeapon by a Single Turret (MOD FE1.5)
+                if (ShipInfo.ArcInfo.Arcs.Any(i => i.ArcType == ArcType.TurretPrimaryWeapon))
+                {
+                    ShipInfo.ArcInfo.Arcs.FindLast(i => i.ArcType == ArcType.TurretPrimaryWeapon).ChangeArcType(ArcType.TurretPrimaryWeapon, ArcType.SingleTurret);
+                    ShipInfo.ArcInfo.Arcs.FindLast(i => i.ArcType == ArcType.Front).SetAsPrimaryWeaponArc(false);
+                    AddFreeMoveArcAction(this);
+                }
+            }
+
             foreach (ShipArcInfo arcInfo in ShipInfo.ArcInfo.Arcs)
             {
                 if (arcInfo.Firepower != -1) PrimaryWeapons.Add(new PrimaryWeaponClass(this, arcInfo));
@@ -183,7 +198,41 @@ namespace Ship
             Damage = new Damage(this);
             ActionBar.Initialize();
         }
-
+        //-----------
+        private void PerformFreeFocusAction(object sender, System.EventArgs e) // Added FG (MOD FE1.5)
+        {
+            this.AskPerformFreeAction(
+                new ActionsList.RotateArcAction(),
+                Triggers.FinishTrigger,
+                this.PilotInfo.PilotName,
+                 "[FE1.5] Free Rotate Arc action on all First Edition 360 Turrets Equiped Ships",
+                this
+            );
+        }
+        public void AddFreeMoveArcAction(GenericShip theShip)  // Added FG (MOD FE1.5)
+        {
+            ActionsList.GenericAction action = new ActionsList.RotateArcAction()  //typeof(RotateArcAction)
+            {
+                //ImageUrl = (new MovableArc(theShip)).Tooltip,
+                HostShip = theShip
+            };
+            theShip.AddAvailableFreeAction(action);
+            theShip.Tokens.AssignCondition(typeof(Conditions.FreeRotateArcCondition)); // Condition is added too early ReAssigns it in ShipRoster 
+            theShip.OnActionDecisionSubphaseEnd += ApplyFreeRotateArcCondition;
+        }
+        private void ApplyFreeRotateArcCondition(GenericShip HostShip)  // Added FG (MOD FE1.5)
+        {
+            Triggers.RegisterTrigger(
+                    new Trigger()
+                    {
+                        Name = HostShip.PilotInfo.PilotName + ": Free Rotate Turret Arc Action",
+                        TriggerOwner = HostShip.Owner.PlayerNo,
+                        TriggerType = TriggerTypes.OnActionIsPerformed,
+                        EventHandler = PerformFreeFocusAction
+                    }
+                );
+        }
+        //---------------
         public void InitializeShipModel()
         {
             CreateModel(StartingPosition);

@@ -42,6 +42,11 @@ namespace Ship
                 arc: arcInfo.ArcType,
                 canShootOutsideArc: arcInfo.ArcType == ArcType.TurretPrimaryWeapon
             );
+            if (arcInfo.ArcType == ArcType.Front && !arcInfo.isPrimaryWeaponArc)
+            {
+                WeaponInfo.ArcRestrictions.Add(ArcType.SingleTurret);
+                WeaponInfo.ArcRestrictions.Remove(ArcType.Front);
+            }  // FG may need to be re-writtten
         }
 
         public bool IsShotAvailable(GenericShip targetShip)

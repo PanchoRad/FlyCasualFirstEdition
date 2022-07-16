@@ -91,16 +91,18 @@ namespace SubPhases
 
         private void AddSingleTurretRotationDecision(ArcFacing facing, ArcFacing currentFacing)
         {
-            if (facing == currentFacing) return;
+            // FG Always Include all Options (current facing is identified with a *)
+            string ID;
+            if (facing == currentFacing) ID = "(*)";
+            else ID = "";
 
             AddDecision(
-                facing.ToString(), 
-                delegate {
+                facing.ToString() + ID,
+                delegate
+                {
                     ChangeMobileArcFacing(facing);
                 },
-                isCentered: (facing == ArcFacing.Front || facing == ArcFacing.Rear)
-                    || (facing == ArcFacing.Left && currentFacing == ArcFacing.Right)
-                    || (facing == ArcFacing.Right && currentFacing == ArcFacing.Left)
+                isCentered: false
             );
         }
 
