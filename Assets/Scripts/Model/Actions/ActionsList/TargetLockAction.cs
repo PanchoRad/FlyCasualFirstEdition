@@ -243,20 +243,32 @@ namespace SubPhases
         public override void Prepare()
         {
             CanMeasureRangeBeforeSelection = false;
+            bool IsAnyLegalTargets = AnyLegalTargets(FilterTargetLockTargets);
 
             if (DescriptionShort == null) DescriptionShort = "Target Lock";
             if (DescriptionLong == null) DescriptionLong = "Choose a ship to acquire a target lock on it";
 
-            PrepareByParameters(
-                TrySelectTargetLock,
-                FilterTargetLockTargets,
-                GetTargetLockAiPriority,
-                Selection.ThisShip.Owner.PlayerNo,
-                true,
-                DescriptionShort,
-                DescriptionLong,
-                ImageSource
-            );
+            if (!IsAnyLegalTargets) Messages.ShowErrorToHuman("There are no legal targets for a Target Lock");
+                PrepareByParameters(
+                   TrySelectTargetLock,
+                   FilterTargetLockTargets,
+                   GetTargetLockAiPriority,
+                   Selection.ThisShip.Owner.PlayerNo,
+                   true,
+                   DescriptionShort,
+                   DescriptionLong,
+                   ImageSource
+             );
+            if (!IsAnyLegalTargets) Phases.Skip();
+        }
+        private bool AnyLegalTargets(Func<ITargetLockable, bool> filterTargets)
+        {
+            int NbTargets = 0;
+            foreach (GenericShip ship in Roster.AllUnits.Values)
+            {
+                if (filterTargets(ship)) NbTargets = NbTargets + 1;
+            }
+            return (NbTargets == 0) ? false : true;
         }
 
         public void PrepareByParameters(Action selectTargetAction, Func<ITargetLockable, bool> filterTargets, Func<GenericShip, int> getAiPriority, PlayerNo subphaseOwnerPlayerNo, bool showSkipButton, string abilityName, string description, IImageHolder imageSource = null)
@@ -282,7 +294,22 @@ namespace SubPhases
         private bool FilterTargetLockTargets(ITargetLockable target)
         {
             // Don't include targets that are owned by the target locking player or ships that can't get target locks
-            return Rules.TargetLocks.TargetLockIsAllowed(Selection.ThisShip, target);
+            bool Exceptions = false;
+            var objType = GetBaseType(target.GetType());
+            if (objType.Name == "GenericShip")
+            {
+                GenericPlayer targetOwner = (GenericPlayer)objType.GetProperty("Owner").GetValue(target, null);
+                if (targetOwner.PlayerNo == Selection.ThisShip.Owner.PlayerNo) Exceptions = true;
+            }
+            return (Exceptions) ? false : Rules.TargetLocks.TargetLockIsAllowed(Selection.ThisShip, target);
+        }
+        public Type GetBaseType(Type type)  // NEW (to access the base class of a generic object)
+        {
+            if (type.BaseType != typeof(object))
+            {
+                return GetBaseType(type.BaseType);
+            }
+            return type;
         }
 
         private int GetTargetLockAiPriority(GenericShip ship)
