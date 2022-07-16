@@ -432,6 +432,24 @@ namespace Ship
             ShipAllParts.Find("Explosion/Ring").GetComponent<ParticleSystem>().Play();
 
             GameManagerScript.Wait(playSoundDelay, delegate { callBack(); });
+            if (Combat.Attacker != null)
+            {
+                if (Combat.Attacker.Faction == Faction.Rebel)
+                {
+                    random = Random.Range(1, 12);
+                    playSoundDelay = Sounds.PlayShipSound("VictoryTune_Rebels" + random);
+                }
+                if (Combat.Attacker.Faction == Faction.Imperial)
+                {
+                    random = Random.Range(1, 12);
+                    playSoundDelay = Sounds.PlayShipSound("VictoryTune_Empire" + random);
+                }
+                if (Combat.Attacker.Faction == Faction.Scum)
+                {
+                    random = Random.Range(1, 7);
+                    playSoundDelay = Sounds.PlayShipSound("VictoryTune_Misc" + random);
+                }
+            }
         }
 
         public void MoveUpwards(float progress)
