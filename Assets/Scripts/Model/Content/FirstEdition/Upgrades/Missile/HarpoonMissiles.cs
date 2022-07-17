@@ -114,6 +114,8 @@ namespace Conditions
 {
     public class Harpooned : Tokens.GenericToken
     {
+        GenericShip _ship = null;
+
         public Harpooned(GenericShip host) : base(host)
         {
             Name = ImageName = "Harpooned Condition";
@@ -149,32 +151,21 @@ namespace Conditions
         {
             if (Combat.DiceRollAttack.CriticalSuccesses > 0)
             {
-                Triggers.RegisterTrigger(
-                    new Trigger()
-                    {
-                        Name = "Harpooned!: Critical hit is dealt",
-                        TriggerType = TriggerTypes.OnAttackHit,
-                        TriggerOwner = Host.Owner.PlayerNo,
-                        EventHandler = HarpoonDetonationByCrit
-                    }
-                );
+                Host.Tokens.RemoveCondition(this);
+                DoSplashDamage(Host, true);
             }
         }
 
-        private void HarpoonDetonationByCrit(object sender, System.EventArgs e)
-        {
-            DoSplashDamage(Host, AdditionalDamageOnItself);
-        }
 
-        private void DoSplashDamage(GenericShip harpoonedShip, Action callback)
+        private void DoSplashDamage(GenericShip harpoonedShip, bool AdditionalDamageOnItself)
         {
             Messages.ShowInfo("\"Harpooned!\" condition deals splash damage");
 
             var ships = Roster.AllShips.Select(x => x.Value).ToList();
+            Host.OnShipIsDestroyed -= DoSplashDamageOnDestroyed;
 
             foreach (GenericShip ship in ships)
-            {
-
+            {           
                 // Defending ship shouldn't suffer additional damage
                 if (ship.ShipId == harpoonedShip.ShipId)
                 {
@@ -183,57 +174,67 @@ namespace Conditions
 
                 BoardTools.DistanceInfo distanceInfo = new BoardTools.DistanceInfo(harpoonedShip, ship);
 
-                if (distanceInfo.Range == 1)
+                if (distanceInfo.Range < 2)
                 {
-                    DamageSourceEventArgs harpoonconditionDamage = new DamageSourceEventArgs()
-                    {
-                        Source = "Harpoon Condition",
-                        DamageType = DamageTypes.CardAbility
-                    };
+                    //ship.Damage.TryResolveDamage(1, harpoonconditionDamage, callback);
+                    Messages.ShowInfoToHuman(ship.PilotInfo.PilotName + " suffered Splash Damage (range " + distanceInfo.Range + ")");
 
-                    ship.Damage.TryResolveDamage(1, harpoonconditionDamage, callback);
+                    _ship = ship;
+                    Triggers.RegisterTrigger(new Trigger() 
+                        {
+                            Name = "Suffer damage from harpoon splash",
+                            TriggerType = TriggerTypes.OnAttackFinish,
+                            TriggerOwner = Host.Owner.PlayerNo,
+                            EventHandler = SufferHarpoonDamage,
+                            EventArgs =  new DamageSourceEventArgs()
+                            {
+                                Source = "Harpoon Condition",
+                                DamageType = DamageTypes.CardAbility
+                            }
+                         }); 
                 }
             }
-        }
-
-        private void AdditionalDamageOnItself()
-        {
-            Host.Tokens.RemoveCondition(this);
-
-            DamageDecks.GetDamageDeck(Host.Owner.PlayerNo).DrawDamageCard(
-                false,
-                DealDrawnCard,
-                new DamageSourceEventArgs
+            if (AdditionalDamageOnItself) 
+            {
+                Triggers.RegisterTrigger(
+                new Trigger()
                 {
-                    DamageType = DamageTypes.Rules,
-                    Source = null
-                }
-            );
+                    Name = "Harpoon Condition: FaceUp Damage Card",
+                    TriggerType = TriggerTypes.OnAttackFinish,
+                    TriggerOwner = Host.Owner.PlayerNo,
+                    Sender = Host.Owner.PlayerNo,
+                    Skippable = true,
+                    EventHandler = HarpoonAssignDamageCard
+                });
+
+                Messages.ShowInfoToHuman(Host.PilotInfo.PilotName + " suffered Splash Damage (critial)");
+            }
+        }
+        private void HarpoonAssignDamageCard(object sender, System.EventArgs e)
+        {
+            DamageSourceEventArgs harpoonDamage = new DamageSourceEventArgs()
+            {
+                Source = "Harpoon Condition",
+                DamageType = DamageTypes.CardAbility
+            };
+
+            Host.SufferHullDamage(true, harpoonDamage);
+        }
+        private void SufferHarpoonDamage(object sender, EventArgs e)
+        {
+            _ship.SufferDamage(sender,e);
         }
 
-        private void DealDrawnCard(System.EventArgs e)
-        {
-            Host.Damage.DealDrawnCard(Triggers.FinishTrigger);
-        }
 
         private void DoSplashDamageOnDestroyed(GenericShip harpoonedShip, bool isFled)
         {
-            Triggers.RegisterTrigger(
-                new Trigger()
-                {
-                    Name = "Harpooned!: Ship is destroyed",
-                    TriggerType = TriggerTypes.OnShipIsDestroyed,
-                    TriggerOwner = Host.Owner.PlayerNo,
-                    EventHandler = HarpoonDetonationByDestruction
-                }
-            );
+            Host.Tokens.RemoveCondition(this);
+            if (!isFled) {
+                DoSplashDamage(Host, false);
+            }
         }
 
-        private void HarpoonDetonationByDestruction(object sender, System.EventArgs e)
-        {
-            DoSplashDamage(Host, Triggers.FinishTrigger);
-        }
-
+      
         private void AddRepairAction(GenericShip harpoonedShip)
         {
             ActionsList.GenericAction action = new ActionsList.HarpoonedRepairAction()
@@ -272,7 +273,7 @@ namespace SubPhases
                     DamageType = DamageTypes.CardAbility
                 };
 
-                Selection.ThisShip.Damage.TryResolveDamage(1, harpoonconditionDamage, Triggers.FinishTrigger);
+                Selection.ThisShip.Damage.TryResolveDamage(1, harpoonconditionDamage, Phases.CurrentSubPhase.CallBack);
             }
             else
             {
