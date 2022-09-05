@@ -355,7 +355,7 @@ namespace SubPhases
         private void CheckObstacles()
         {
             Rules.AsteroidHit.CheckHits(TheShip);
-            Rules.AsteroidLanded.CheckLandedOnObstacle(TheShip);
+            Rules.ObstacleLanded.CheckLandedOnObstacle(TheShip);
             Triggers.ResolveTriggers(TriggerTypes.OnMovementFinish, Next);
         }
 

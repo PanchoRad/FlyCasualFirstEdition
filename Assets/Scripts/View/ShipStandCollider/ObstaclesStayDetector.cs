@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class ObstaclesStayDetector: MonoBehaviour {
 
+    public bool isHugeShip = false;								   
     public bool checkCollisions = false;
 
     public bool OverlapsShip = false;
@@ -17,7 +18,9 @@ public class ObstaclesStayDetector: MonoBehaviour {
     public List<Collider> OverlapedMines = new List<Collider>();
 
     public bool OffTheBoard = false;
-
+    public bool LandedOnAsteroid =false;
+    public bool LandedOnShip = false;
+    public bool LandedOnDevice = false;
     void OnTriggerEnter(Collider collisionInfo)
     {
         if (checkCollisions)
@@ -47,7 +50,7 @@ public class ObstaclesStayDetector: MonoBehaviour {
                 if (collisionInfo.tag != this.tag)
                 {
                     Game.Movement.CollidedWith = collisionInfo;
-                    OverlapsShip = true;
+                    OverlapsShip = (!isHugeShip) ? true : false;  // Don't stop Movement on Ship Overlap for Huge Ships
                     if (!OverlapedShips.Contains(Roster.GetShipById(collisionInfo.tag)))
                     {
                         OverlapedShips.Add(Roster.GetShipById(collisionInfo.tag));

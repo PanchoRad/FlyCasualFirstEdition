@@ -458,42 +458,57 @@ namespace AI.Aggressor
         private static List<string> GetShortestTurnManeuvers(GenericShip ship)
         {
             List<string> bestTurnManeuvers = new List<string>();
+            bool HasTurnManeuvers = (ship.GetManeuverHolders().Where(n=>n.Bearing == ManeuverBearing.Turn).Count()>0);
+            if (HasTurnManeuvers)
+            {
+                ManeuverHolder bestTurnManeuver = ship.GetManeuverHolders()
+                    .Where(n =>
+                        n.Bearing == ManeuverBearing.Turn
+                        && n.Direction == ManeuverDirection.Left
+                    )
+                    .OrderBy(n => n.SpeedIntUnsigned)
+                    .FirstOrDefault();
+								  
+                bestTurnManeuvers.Add(bestTurnManeuver.ToString()); 
 
-            ManeuverHolder bestTurnManeuver = ship.GetManeuverHolders()
-                .Where(n =>
-                    n.Bearing == ManeuverBearing.Turn
-                    && n.Direction == ManeuverDirection.Left
-                )
-                .OrderBy(n => n.SpeedIntUnsigned)
-                .FirstOrDefault();
-            bestTurnManeuvers.Add(bestTurnManeuver.ToString());
-
-            bestTurnManeuver = ship.GetManeuverHolders()
-                .Where(n =>
-                    n.Bearing == ManeuverBearing.Turn
-                    && n.Direction == ManeuverDirection.Right
-                )
-                .OrderBy(n => n.SpeedIntUnsigned)
-                .FirstOrDefault();
-            bestTurnManeuvers.Add(bestTurnManeuver.ToString());
-
+                bestTurnManeuver = ship.GetManeuverHolders()
+                    .Where(n =>
+                        n.Bearing == ManeuverBearing.Turn
+                        && n.Direction == ManeuverDirection.Right
+                    )
+                    .OrderBy(n => n.SpeedIntUnsigned)
+                    .FirstOrDefault();
+                bestTurnManeuvers.Add(bestTurnManeuver.ToString()); 
+            }
+            if (bestTurnManeuvers.Count==0) bestTurnManeuvers.Add("1.F.S"); //FG
             return bestTurnManeuvers;
         }
 
         public static GenericShip GetNextShipWithoutAssignedManeuver()
         {
             return Roster.GetPlayer(Phases.CurrentSubPhase.RequiredPlayer).Ships.Values
-                .Where(n => n.AssignedManeuver == null && !n.State.IsIonized)
-                .OrderBy(n => VirtualBoard.Ships[n].OrderToActivate)
-                .FirstOrDefault();
+				.Where(n => n.AssignedManeuver == null && !n.State.IsIonized)
+				.OrderBy(n => VirtualBoard.Ships[n].OrderToActivate)
+				.FirstOrDefault();
         }
 
         public static GenericShip GetNextShipWithoutFinishedManeuver()
         {
-            return Roster.GetPlayer(Phases.CurrentSubPhase.RequiredPlayer).Ships.Values
-                .Where(n => !n.IsManeuverPerformed)
-                .OrderBy(n => VirtualBoard.Ships[n].OrderToActivate)
-                .FirstOrDefault();
+            List<GenericShip> AllShips = new List<GenericShip>(Roster.AllShips.Values.ToList()); //FG Adjusted for Huge Ship Activation Order 
+            List<GenericShip> NonHugeShipsMoveToGo = AllShips
+                 .Where(n => n.isHugeShip == false)
+                 .Where(n => n.IsManeuverPerformed == false)
+                 .ToList<GenericShip>();
+            GenericShip NextShip = (NonHugeShipsMoveToGo.Count>0)? Roster.GetPlayer(Phases.CurrentSubPhase.RequiredPlayer).Ships.Values
+                                                                    .Where(n => !n.IsManeuverPerformed)
+                                                                    .Where(n => !n.isHugeShip)
+                                                                    .OrderBy(n => VirtualBoard.Ships[n].OrderToActivate)
+                                                                    .FirstOrDefault()
+                                                                 : Roster.GetPlayer(Phases.CurrentSubPhase.RequiredPlayer).Ships.Values
+                                                                    .Where(n => !n.IsManeuverPerformed)
+                                                                    .OrderBy(n => VirtualBoard.Ships[n].OrderToActivate)
+                                                                    .FirstOrDefault();
+            return NextShip;		
         }
 
         public static void AssignPlannedManeuver(Action callBack)

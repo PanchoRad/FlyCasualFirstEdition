@@ -24,24 +24,27 @@ namespace Obstacles
                 return;
             }
 
-            if (!Selection.ThisShip.CanPerformActionsWhenOverlapping)
-            {
-                Messages.ShowErrorToHuman(ship.PilotInfo.PilotName + " hit an asteroid during movement, their action subphase is skipped");
-                Selection.ThisShip.IsSkipsActionSubPhase = true;
+            if (!(Selection.ThisShip.isHugeShip))
+            {   // FG For HUGE ship ignore obstacles during movement												 	
+				if (!Selection.ThisShip.CanPerformActionsWhenOverlapping)
+				{
+					Messages.ShowErrorToHuman(ship.PilotInfo.PilotName + " hit an asteroid during movement, their action subphase is skipped");
+					Selection.ThisShip.IsSkipsActionSubPhase = true;
+				}
+
+				Messages.ShowErrorToHuman(ship.PilotInfo.PilotName + " hit an asteroid during movement, rolling for damage");
+
+				AsteroidHitCheckSubPhase newPhase = (AsteroidHitCheckSubPhase)Phases.StartTemporarySubPhaseNew(
+					"Damage from asteroid collision",
+					typeof(AsteroidHitCheckSubPhase),
+					delegate
+					{
+						Phases.FinishSubPhase(typeof(AsteroidHitCheckSubPhase));
+						Triggers.FinishTrigger();
+					});
+				newPhase.TheShip = ship;
+				newPhase.Start();
             }
-
-            Messages.ShowErrorToHuman(ship.PilotInfo.PilotName + " hit an asteroid during movement, rolling for damage");
-
-            AsteroidHitCheckSubPhase newPhase = (AsteroidHitCheckSubPhase)Phases.StartTemporarySubPhaseNew(
-                "Damage from asteroid collision",
-                typeof(AsteroidHitCheckSubPhase),
-                delegate
-                {
-                    Phases.FinishSubPhase(typeof(AsteroidHitCheckSubPhase));
-                    Triggers.FinishTrigger();
-                });
-            newPhase.TheShip = ship;
-            newPhase.Start();
         }
 
         public override void OnLanded(GenericShip ship)
@@ -49,6 +52,24 @@ namespace Obstacles
             ship.OnTryPerformAttack += DenyAttack;
         }
 
+        public override void OnLandedHugeShip(GenericShip ship, int ShipSection)
+        {
+            Messages.ShowErrorToHuman(ship.PilotInfo.PilotName + " landed on Obstacle, receiving a Face Up Damage Card");
+
+            Triggers.RegisterTrigger(
+                new Trigger()
+                {
+                    Name = "Obstacle Collision, FaceUp Damage Card",
+                    TriggerType = TriggerTypes.OnPositionFinish,
+                    TriggerOwner = ship.Owner.PlayerNo,
+                    Sender = ship.Owner.PlayerNo,
+                    Skippable = true,
+                    EventHandler = AssignDamageCard
+                });
+
+            Messages.ShowInfoToHuman("Obstacle is destroyed!");
+            Obstacles.ObstaclesManager.DestroyObstacle(this);
+        }
         public void DenyAttack(ref bool result, List<string> stringList)
         {
             if (Selection.ThisShip.ObstaclesLanded.Contains(this) && !Selection.ThisShip.CanAttackWhileLandedOnObstacle())
@@ -63,6 +84,16 @@ namespace Obstacles
             // Only default effect
         }
 
+        private void AssignDamageCard(object sender, System.EventArgs e)
+        {
+            DamageSourceEventArgs asteroidDamage = new DamageSourceEventArgs()
+            {
+                Source = "Asteroid",
+                DamageType = DamageTypes.ObstacleCollision
+            };
+
+            Selection.ThisShip.SufferHullDamage(true, asteroidDamage);
+        }
     }
 }
 

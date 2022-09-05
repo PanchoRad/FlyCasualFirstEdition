@@ -287,7 +287,7 @@ namespace SubPhases
             Roster.SetRaycastTargets(false);
             Roster.AllShipsHighlightOff();
             Board.HighlightStartingZones(Phases.CurrentSubPhase.RequiredPlayer);
-            Selection.ThisShip.Model.GetComponentInChildren<ObstaclesStayDetector>().checkCollisions = true;
+            Selection.ThisShip.Model.GetComponentInChildren<ObstaclesStayDetector>().checkCollisions = true;			
             inReposition = true;
 
             if (CameraScript.InputTouchIsEnabled)
@@ -430,7 +430,6 @@ namespace SubPhases
                     FixZPositionByBoard();
                 }
             }
-
             FixXPosition();
         }
 
@@ -451,14 +450,20 @@ namespace SubPhases
             {
                 Vector3 newPosition = Selection.ThisShip.GetCenter();
                 Dictionary<string, float> newBounds = Selection.ThisShip.ShipBase.GetBounds();
-
-                if ((Selection.ThisShip.Owner.PlayerNo == Players.PlayerNo.Player2 && (newBounds["maxZ"] < StartingZone.TransformPoint(0.5f, 0.5f, 0.5f).z))
-                    || (Selection.ThisShip.Owner.PlayerNo == Players.PlayerNo.Player1 && (newBounds["minZ"] > StartingZone.TransformPoint(-0.5f, -0.5f, -0.5f).z)))
-                {
-                    IsInsideStartingZone = true;
+             if (!Selection.ThisShip.isHugeShip) { //FG
+                    if ((Selection.ThisShip.Owner.PlayerNo == Players.PlayerNo.Player2 && (newBounds["maxZ"] < StartingZone.TransformPoint(0.5f, 0.5f, 0.5f).z))
+                        || (Selection.ThisShip.Owner.PlayerNo == Players.PlayerNo.Player1 && (newBounds["minZ"] > StartingZone.TransformPoint(-0.5f, -0.5f, -0.5f).z)))
+                    {
+                        IsInsideStartingZone = true;
+                    }
+                } else {
+                    if ((Selection.ThisShip.Owner.PlayerNo == Players.PlayerNo.Player2 && (newBounds["maxZ"] < StartingZone.TransformPoint(0.5f, 0.5f, 0.5f).z))
+                            || (Selection.ThisShip.Owner.PlayerNo == Players.PlayerNo.Player1 && (newBounds["minZ"] > StartingZone.TransformPoint(-0.5f, -0.5f, -0.5f).z)))
+                    {
+                        IsInsideStartingZone = true;
+                    }
                 }
             }
-
             return IsInsideStartingZone;
         }
 
@@ -486,7 +491,7 @@ namespace SubPhases
                     Selection.ThisShip.SetCenter(newPosition);
                 }
             }
-            else if (RequiredPlayer == Players.PlayerNo.Player2)
+            else if (RequiredPlayer == Players.PlayerNo.Player2) 
             {
                 if (newBounds["minZ"] < StartingZone.TransformPoint(-0.5f, -0.5f, -0.5f).z)
                 {
@@ -503,7 +508,7 @@ namespace SubPhases
                     newPosition.z = StartingZone.TransformPoint(0.5f, 0.5f, 0.5f).z - (newBounds["maxZ"] - newPosition.z + 0.01f);
 
                     Selection.ThisShip.SetCenter(newPosition);
-                }
+                } 
             }
         }
 
@@ -591,6 +596,30 @@ namespace SubPhases
                     }
                     else if (Phases.CurrentSubPhase.RequiredPlayer == Players.PlayerNo.Player2
                         && (startingZone.TransformPoint(0.5f, 0.5f, 0.5f).z - bounds["maxZ"] <= 0.02f)
+                    )
+                    {
+                        result = true;
+                    }
+                }
+            } else if (ship.isHugeShip)  // HUge Ship setup, ship needs to touch the starting edge
+            {
+                Dictionary<string, float> bounds = Selection.ThisShip.ShipBase.GetBounds();
+                Transform startingZone = (Phases.CurrentSubPhase as SetupSubPhase).StartingZone;
+
+                if ((bounds["maxX"] <= startingZone.TransformPoint(0.5f, 0.5f, 0.5f).x)
+                    && (bounds["minX"] >= startingZone.TransformPoint(-0.5f, -0.5f, -0.5f).x)
+                )
+                {
+                    if (Phases.CurrentSubPhase.RequiredPlayer == Players.PlayerNo.Player1
+                        && (bounds["minZ"] - startingZone.TransformPoint(-0.5f, -0.5f, -0.5f).z <= 0.02f)
+                        && (bounds["minZ"] - startingZone.TransformPoint(-0.5f, -0.5f, -0.5f).z >= 0.0f)
+                    )
+                    {
+                        result = true;
+                    }
+                    else if (Phases.CurrentSubPhase.RequiredPlayer == Players.PlayerNo.Player2
+                        && (startingZone.TransformPoint(0.5f, 0.5f, 0.5f).z - bounds["maxZ"] <= 0.02f)
+                        && (startingZone.TransformPoint(0.5f, 0.5f, 0.5f).z - bounds["maxZ"] >= 0.0f)
                     )
                     {
                         result = true;

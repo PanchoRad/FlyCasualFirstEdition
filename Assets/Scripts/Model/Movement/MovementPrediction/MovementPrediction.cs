@@ -19,7 +19,9 @@ namespace Movement
         public ShipPositionInfo FinalPositionBeforeRotationInfo { get; private set; }
         public float SuccessfullMovementProgress { get; private set; }
         public bool IsOffTheBoard;
-        public bool IsBumped { get { return ShipsBumped.Count != 0; } }
+        public bool IsLandedOnObstacle;
+        public bool IsLandedOnShip;       
+		public bool IsBumped { get { return ShipsBumped.Count != 0; } }
         public List<GenericShip> ShipsBumped = new List<GenericShip>();
         public List<GenericRemote> RemotesOverlapped = new List<GenericRemote>();
         public List<GenericRemote> RemotesMovedThrough = new List<GenericRemote>();
@@ -36,6 +38,11 @@ namespace Movement
             Ship = ship;
             CurrentMovement = movement;
         }
+        public static IEnumerator WaitForKeyDown(KeyCode keyCode)
+        {
+            while (!Input.GetKeyDown(keyCode))
+                yield return null;
+        }																 
 
         public IEnumerator CalculateMovementPredicition()
         {
@@ -86,15 +93,15 @@ namespace Movement
 
             for (int i = GeneratedShipStands.Length - 1; i >= 0; i--)
             {
-                ObstaclesStayDetector obstacleStayDetector = GeneratedShipStands[i].GetComponentInChildren<ObstaclesStayDetector>();
+                ObstaclesStayDetector Detector = GeneratedShipStands[i].GetComponentInChildren<ObstaclesStayDetector>();
                 ObstaclesHitsDetector obstacleHitsDetector = GeneratedShipStands[i].GetComponentInChildren<ObstaclesHitsDetector>();
 
                 if (!finalPositionFound)
                 {
-                    if (obstacleStayDetector.OverlapsShip)
+                    if (Detector.OverlapsShip)
                     {
                         // Save information in which ships we are bumped
-                        lastShipBumpDetector = obstacleStayDetector;
+                        lastShipBumpDetector = Detector;
                     }
                     else
                     {
@@ -104,16 +111,19 @@ namespace Movement
                         ProcessBumpedShips(lastShipBumpDetector);
 
                         ProcessFinalPosition(i);
-                        ProcessOffTheBoard(obstacleStayDetector);
-                        ProcessObstaclesLanded(obstacleStayDetector);
-                        ProcessRemotesOverlaps(obstacleStayDetector);
-                        ProcessObstaclesHit(obstacleStayDetector);
-                        ProcessMines(obstacleStayDetector);
+                        ProcessOffTheBoard(Detector);
+                        ProcessObstaclesLanded(Detector);
+                        ProcessRemotesOverlaps(Detector);
+						if (!Detector.isHugeShip)  //FG
+                        {
+                            ProcessObstaclesHit(Detector);
+                        }
+                        ProcessMines(Detector);
                     }
                 }
                 else
                 {
-                    ProcessStandOnPath(obstacleHitsDetector);
+                    if (!Detector.isHugeShip)  ProcessStandOnPath(obstacleHitsDetector);  //FG
                 }
 
             }
@@ -166,22 +176,30 @@ namespace Movement
                         ShipsBumped.Add(overlapedShip);
                     }
                 }
+				if (lastShipBumpDetector.isHugeShip)
+                {
+                    IsLandedOnShip = (lastShipBumpDetector.OverlapedShips.Count > 0);
+                }
             }
         }
 
-        private void ProcessOffTheBoard(ObstaclesStayDetector obstacleStayDetector)
+        private void ProcessOffTheBoard(ObstaclesStayDetector Detector)
         {
-            IsOffTheBoard = obstacleStayDetector.OffTheBoard;
+            IsOffTheBoard = Detector.OffTheBoard;
         }
 
-        private void ProcessObstaclesLanded(ObstaclesStayDetector obstacleStayDetector)
+        private void ProcessObstaclesLanded(ObstaclesStayDetector Detector)
         {
-            LandedOnObstacles = new List<GenericObstacle>(obstacleStayDetector.OverlapedAsteroids);
+            LandedOnObstacles = new List<GenericObstacle>(Detector.OverlapedAsteroids);
+            if (Detector.isHugeShip)
+            {
+                IsLandedOnObstacle = (Detector.OverlapedAsteroids.Count > 0);
+            }
         }
 
-        private void ProcessRemotesOverlaps(ObstaclesStayDetector obstacleStayDetector)
+        private void ProcessRemotesOverlaps(ObstaclesStayDetector Detector)
         {
-            foreach (var overlapedRemote in obstacleStayDetector.OverlapedRemotes)
+            foreach (var overlapedRemote in Detector.OverlapedRemotes)
             {
                 if (!RemotesOverlapped.Contains(overlapedRemote))
                 {
@@ -190,9 +208,9 @@ namespace Movement
             }
         }
 
-        private void ProcessObstaclesHit(ObstaclesStayDetector obstacleStayDetector)
+        private void ProcessObstaclesHit(ObstaclesStayDetector Detector)
         {
-            foreach (var asteroidHit in obstacleStayDetector.OverlapedAsteroids)
+            foreach (var asteroidHit in Detector.OverlapedAsteroids)
             {
                 if (!AsteroidsHit.Contains(asteroidHit))
                 {
@@ -201,9 +219,9 @@ namespace Movement
             }
         }
 
-        private void ProcessMines(ObstaclesStayDetector obstacleStayDetector)
+        private void ProcessMines(ObstaclesStayDetector Detector)
         {
-            foreach (var mineHit in obstacleStayDetector.OverlapedMines)
+            foreach (var mineHit in Detector.OverlapedMines)
             {
                 GenericDeviceGameObject MineObject = mineHit.transform.parent.GetComponent<GenericDeviceGameObject>();
                 if (!MinesHit.Contains(MineObject))

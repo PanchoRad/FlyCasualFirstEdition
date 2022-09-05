@@ -1,4 +1,5 @@
 ﻿using SquadBuilderNS;
+using Ship;		   
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -83,7 +84,15 @@ public class ShipPanelSquadBuilder : MonoBehaviour {
     private void SelectShip(string shipName)
     {
         SquadBuilder.CurrentShip = shipName;
-        MainMenu.CurrentMainMenu.ChangePanel("SelectPilotPanel");
+        GenericShip ship = SquadBuilder.AllShips.Find(n => n.ShipName == shipName).Instance;
+        if (!ship.isHugeShip)
+        {
+            MainMenu.CurrentMainMenu.ChangePanel("SelectPilotPanel");
+        }
+        else {
+            // In case of Huge Ships, the pilot card is always automatically selected
+            SquadBuilder.AddHugeShipPilots();
+        }
     }
 
     private void ReadyToShow()

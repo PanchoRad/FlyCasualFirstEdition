@@ -42,10 +42,18 @@ namespace Ship
                 case BaseSize.Large:
                     ShipBase = new ShipBaseLarge(this);
                     break;
+                case BaseSize.Huge:                         //FG
+                    ShipBase = new ShipBaseHuge(this);
+                    break;																					  
                 default:
                     break;
             }
         }
+
+        public bool isHugeShip { get { return ((ShipInfo.BaseSize == BaseSize.Huge) || (ShipInfo.BaseSize == BaseSize.HugeDualAft)
+                    || (ShipInfo.BaseSize == BaseSize.HugeDualFore)); } }  //FG
+         
+
 
         public GameObject CreateShipModel(Vector3 position)
         {
@@ -300,7 +308,7 @@ namespace Ship
         public void ShowMobileFiringArcHighlight(ArcFacing facing)
         {
             //Mobile arc
-            string newTexture = "ShipStandInsert/Universal/SecondEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.Faction.ToString() + "/" + facing.ToString();
+            string newTexture = "ShipStandInsert/Universal/FirstEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.Faction.ToString() + "/" + facing.ToString();
             Material newMaterial = CreateMaterial(newTexture);
 
             StandardShaderUtils.ChangeRenderMode(newMaterial, StandardShaderUtils.BlendMode.Fade);
@@ -312,7 +320,7 @@ namespace Ship
         public void ShowMobileFiringArcAltHighlight(ArcFacing facing)
         {
             //Mobile arc alt
-            string newTexture = "ShipStandInsert/Universal/SecondEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.Faction.ToString() + "/" + facing.ToString();
+            string newTexture = "ShipStandInsert/Universal/FirstEdition/" + this.ShipInfo.BaseSize.ToString() + "/" + this.Faction.ToString() + "/" + facing.ToString();
             Material newMaterial = CreateMaterial(newTexture);
 
             StandardShaderUtils.ChangeRenderMode(newMaterial, StandardShaderUtils.BlendMode.Fade);
@@ -404,14 +412,19 @@ namespace Ship
             if (!(this is GenericRemote))
             {
                 ShipAllParts.Find("ShipBase/ShipBaseCollider/ObstaclesStayDetector").GetComponent<ObstaclesStayDetector>().checkCollisions = value;
-                ShipAllParts.Find("ShipBase/ObstaclesHitsDetector").GetComponent<ObstaclesHitsDetector>().checkCollisions = value;
+				if ((Selection.ThisShip != null) && !(Selection.ThisShip.isHugeShip))
+                {   //FG Non-Epic Ships, original code (no Hits Detector for Huge Ships
+                    ShipAllParts.Find("ShipBase/ObstaclesHitsDetector").GetComponent<ObstaclesHitsDetector>().checkCollisions = value;
+                } 
             }
         }
 
         public void ToggleColliders(bool value)
         {
             ShipAllParts.Find("ShipBase/ShipBaseCollider/ObstaclesStayDetector").GetComponent<Collider>().enabled = value;
-            ShipAllParts.Find("ShipBase/ObstaclesHitsDetector").GetComponent<Collider>().enabled = value;
+            if (!(Selection.ThisShip.isHugeShip)) { 
+                ShipAllParts.Find("ShipBase/ObstaclesHitsDetector").GetComponent<Collider>().enabled = value;
+            }		 
         }
 
         public MeshCollider GetCollider()

@@ -12,6 +12,9 @@ namespace Ship
         Small,
         Medium,
         Large,
+        Huge,
+        HugeDualAft,
+		HugeDualFore,
         None
     }
 
@@ -34,6 +37,7 @@ namespace Ship
         private Dictionary<string, Vector3> standPoints = new Dictionary<string, Vector3>();
         public float HALF_OF_SHIPSTAND_SIZE { get; protected set; }
         public float SHIPSTAND_SIZE { get; protected set; }
+        public float LENGTH_OF_SHIPBASESTAND { get; protected set; }  // FG Used for Huge Ship (not square base)										
         public float SHIPSTAND_SIZE_CM { get; protected set; }
         public float HALF_OF_FIRINGARC_SIZE { get; protected set; }
         public float HALF_OF_BULLSEYEARC_SIZE { get { return 0.25f; } }
@@ -69,18 +73,19 @@ namespace Ship
         private void SetShipBaseEdges()
         {
             int PRECISION = 20;
-
+            float FullBaseLength = (Host.isHugeShip) ? LENGTH_OF_SHIPBASESTAND : 2 * HALF_OF_SHIPSTAND_SIZE; //FG
             baseEdges.Add("LF", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, 0f));
             baseEdges.Add("RF", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, 0f));
-            baseEdges.Add("LB", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
-            baseEdges.Add("RB", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
+            baseEdges.Add("LB", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -FullBaseLength));
+            baseEdges.Add("RB", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -FullBaseLength));
 
             standEdgePoints.Add("LF", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, 0f));
             standEdgePoints.Add("CF", Vector3.zero);
             standEdgePoints.Add("RF", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, 0f));
-            standEdgePoints.Add("LB", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
+
+            standEdgePoints.Add("LB", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -FullBaseLength));
             standEdgePoints.Add("CB", new Vector3(0f, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
-            standEdgePoints.Add("RB", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
+            standEdgePoints.Add("RB", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -FullBaseLength));
 
             standPoints = new Dictionary<string, Vector3>(standEdgePoints);
 
@@ -98,8 +103,8 @@ namespace Ship
             standFront180Points = new Dictionary<string, Vector3>(standFrontPoints);
 
             standBackPoints = new Dictionary<string, Vector3>();
-            standBackPoints.Add("LB", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
-            standBackPoints.Add("RB", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
+            standBackPoints.Add("LB", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -FullBaseLength));
+            standBackPoints.Add("RB", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -FullBaseLength));
             for (int i = 1; i < PRECISION + 1; i++)
             {
                 Vector3 newPoint = new Vector3((float)i * ((2 * HALF_OF_FIRINGARC_SIZE) / (float)(PRECISION + 1)) - HALF_OF_FIRINGARC_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE);
@@ -109,10 +114,10 @@ namespace Ship
 
             standLeftPoints = new Dictionary<string, Vector3>();
             standLeftPoints.Add("LF", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, 0f));
-            standLeftPoints.Add("LB", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
+            standLeftPoints.Add("LB", new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -FullBaseLength));
             for (int i = 1; i < PRECISION + 1; i++)
             {
-                Vector3 newPoint = new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -(float)i * ((2 * HALF_OF_SHIPSTAND_SIZE) / (float)(PRECISION + 1)));
+                Vector3 newPoint = new Vector3(-HALF_OF_SHIPSTAND_SIZE, 0f, -(float)i * ((FullBaseLength) / (float)(PRECISION + 1)));
                 standLeftPoints.Add("L" + i, newPoint);
                 standPoints.Add("L" + i, newPoint);
                 if (i <= (PRECISION / 2) + 1)
@@ -123,10 +128,10 @@ namespace Ship
 
             standRightPoints = new Dictionary<string, Vector3>();
             standRightPoints.Add("LF", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, 0f));
-            standRightPoints.Add("LB", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -2 * HALF_OF_SHIPSTAND_SIZE));
+            standRightPoints.Add("LB", new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -FullBaseLength));
             for (int i = 1; i < PRECISION + 1; i++)
             {
-                Vector3 newPoint = new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -(float)i * ((2 * HALF_OF_SHIPSTAND_SIZE) / (float)(PRECISION + 1)));
+                Vector3 newPoint = new Vector3(HALF_OF_SHIPSTAND_SIZE, 0f, -(float)i * ((FullBaseLength) / (float)(PRECISION + 1)));
                 standRightPoints.Add("R" + i, newPoint);
                 standPoints.Add("R" + i, newPoint);
                 if (i <= (PRECISION / 2) + 1)

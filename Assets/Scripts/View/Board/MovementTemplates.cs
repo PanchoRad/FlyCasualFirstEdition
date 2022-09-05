@@ -51,10 +51,18 @@ public static class MovementTemplates {
 
     public static void ApplyMovementRuler(GenericShip thisShip) {
 
-        if (Selection.ThisShip.AssignedManeuver.Speed != 0)
+        if ((Selection.ThisShip.AssignedManeuver.Speed != 0) || (Selection.ThisShip.AssignedManeuver.Direction != ManeuverDirection.Forward))
         {
-            ApplyMovementRuler(thisShip, thisShip.AssignedManeuver);
-        }        
+            if (!thisShip.isHugeShip)
+            {
+                ApplyMovementRuler(thisShip, thisShip.AssignedManeuver);
+            }
+            else
+            {
+                GameObject ShipBase = thisShip.Model.transform.Find("RotationHelper/RotationHelper2/ShipAllParts/ShipBase/").gameObject;
+                ApplyMovementRuler(thisShip, thisShip.AssignedManeuver, ShipBase);
+            }
+        }
 	}
 
     public static void ApplyMovementRuler(GenericShip thisShip, GenericMovement movement)
@@ -74,6 +82,55 @@ public static class MovementTemplates {
         }
     }
 
+   public static void ApplyMovementRuler(GenericShip thisShip, GenericMovement movement, GameObject ShipBase)
+    {
+        // FG Huge Ships Movement
+        CurrentTemplate = GetMovementRuler(movement);
+
+        if (CurrentTemplate != null)
+        {
+            SaveCurrentMovementRulerPosition();
+            Vector3 BaseReferencePt;
+            switch (movement.Direction)
+            {
+                case ManeuverDirection.Forward:
+                    if (thisShip.Model.transform.InverseTransformPoint(0f, 0f, 0f).x < 0)
+                    {   // place template tool on left side
+                        BaseReferencePt = ShipBase.transform.Find("TemplateLoc_CL_LH").position;
+                        CurrentTemplate.position = BaseReferencePt;
+                        CurrentTemplate.eulerAngles = thisShip.GetAngles() + new Vector3(0f, 90f, 0f);
+                        CurrentTemplate.position = CurrentTemplate.transform.TransformPoint(-CurrentTemplate.transform.Find("StraightMove").localPosition.x, 0f,
+                                                                                            -CurrentTemplate.transform.Find("StraightMove").localPosition.z);
+                    }
+                    else
+                    {   // place template tool on right side
+                        BaseReferencePt = ShipBase.transform.Find("TemplateLoc_CL_RH").position;
+                        CurrentTemplate.position = BaseReferencePt;
+                        CurrentTemplate.eulerAngles = thisShip.GetAngles() + new Vector3(0f, -90f, 180f);
+                        CurrentTemplate.position = CurrentTemplate.transform.TransformPoint(-CurrentTemplate.transform.Find("StraightMove").localPosition.x, 0f,
+                                                                                            -CurrentTemplate.transform.Find("StraightMove").localPosition.z);
+                    }
+                    break;
+
+                case ManeuverDirection.Left:
+                    BaseReferencePt = ShipBase.transform.Find("TemplateLoc_PV1_LH").position;
+                    CurrentTemplate.position = BaseReferencePt;
+                    CurrentTemplate.eulerAngles = thisShip.GetAngles() + new Vector3(0f, -90f, 180f);
+                    CurrentTemplate.position = CurrentTemplate.transform.TransformPoint(-CurrentTemplate.transform.Find("RotationPivot").localPosition.x, 0f,
+                                                                                        -CurrentTemplate.transform.Find("RotationPivot").localPosition.z);
+                    CurrentTemplate.transform.RotateAround(CurrentTemplate.transform.Find("RotationPivot").position, Vector3.up, -30.0f);
+                    break;
+                case ManeuverDirection.Right:
+                    BaseReferencePt = ShipBase.transform.Find("TemplateLoc_PV1_RH").position;
+                    CurrentTemplate.position = BaseReferencePt;
+                    CurrentTemplate.eulerAngles = thisShip.GetAngles() + new Vector3(0f, 90f, 0f);
+                    CurrentTemplate.position = CurrentTemplate.transform.TransformPoint(-CurrentTemplate.transform.Find("RotationPivot").localPosition.x, 0f,
+                                                                                        -CurrentTemplate.transform.Find("RotationPivot").localPosition.z);
+                    CurrentTemplate.transform.RotateAround(CurrentTemplate.transform.Find("RotationPivot").position, Vector3.up, 30.0f);
+                    break;
+            }
+        }
+    } 
     public static void SaveCurrentMovementRulerPosition()
     {
         savedRulerPosition = CurrentTemplate.position;
@@ -87,34 +144,40 @@ public static class MovementTemplates {
         Transform result = null;
         if (movement != null)
         {
-            switch (movement.Bearing)
-            {
-                case ManeuverBearing.Straight:
-                    return Templates.Find("straight" + movement.Speed);
-                case ManeuverBearing.Bank:
-                    return Templates.Find("bank" + movement.Speed);
-                case ManeuverBearing.SegnorsLoop:
-                    return Templates.Find("bank" + movement.Speed);
-                case ManeuverBearing.SideslipBank:
-                    return Templates.Find("bank" + movement.Speed);
-                case ManeuverBearing.SegnorsLoopUsingTurnTemplate:
-                    return Templates.Find("turn" + movement.Speed);
-                case ManeuverBearing.Turn:
-                    return Templates.Find("turn" + movement.Speed);
-                case ManeuverBearing.TallonRoll:
-                    return Templates.Find("turn" + movement.Speed);
-                case ManeuverBearing.SideslipTurn:
-                    return Templates.Find("turn" + movement.Speed);
-                case ManeuverBearing.KoiogranTurn:
-                    return Templates.Find("straight" + movement.Speed);
-                case ManeuverBearing.ReverseStraight:
-                    return Templates.Find(((movement.Direction == ManeuverDirection.Forward) ? "straight" : "bank") + movement.Speed);
-                case ManeuverBearing.Stationary:
-                    return null;
+            if (!movement.TheShip.isHugeShip) {
+                switch (movement.Bearing)
+                {
+                    case ManeuverBearing.Straight:
+                        return Templates.Find("straight" + movement.Speed);
+                    case ManeuverBearing.Bank:
+                        return Templates.Find("bank" + movement.Speed);
+                    case ManeuverBearing.SegnorsLoop:
+                        return Templates.Find("bank" + movement.Speed);
+                    case ManeuverBearing.SideslipBank:
+                        return Templates.Find("bank" + movement.Speed);
+                    case ManeuverBearing.SegnorsLoopUsingTurnTemplate:
+                        return Templates.Find("turn" + movement.Speed);
+                    case ManeuverBearing.Turn:
+                        return Templates.Find("turn" + movement.Speed);
+                    case ManeuverBearing.TallonRoll:
+                        return Templates.Find("turn" + movement.Speed);
+                    case ManeuverBearing.SideslipTurn:
+                        return Templates.Find("turn" + movement.Speed);
+                    case ManeuverBearing.KoiogranTurn:
+                        return Templates.Find("straight" + movement.Speed);
+                    case ManeuverBearing.ReverseStraight:
+                        return Templates.Find(((movement.Direction == ManeuverDirection.Forward) ? "straight" : "bank") + movement.Speed);
+                    case ManeuverBearing.Stationary:
+                        return null;
+                }
+            }
+            else
+            {							  
+                return Templates.Find("HugeShipTool");								
             }
         }
         return result;
-    }
+	}
 
     public static void HideLastMovementRuler()
     {

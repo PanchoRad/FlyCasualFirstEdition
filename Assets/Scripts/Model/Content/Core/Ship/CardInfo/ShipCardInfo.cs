@@ -16,6 +16,7 @@ namespace Ship
         public int Hull { get; set; }
         public int Shields { get; set; }
         public int Charges { get; set; }
+        public int Energy { get; set; }									   
         public bool RegensCharges { get; set; }
 
         public ShipActionsInfo ActionIcons { get; private set; }
@@ -28,7 +29,7 @@ namespace Ship
         public string Description { get; set; }
         public string AbilityText { get; private set; }
 
-        public ShipCardInfo(string shipName, BaseSize baseSize, Faction faction, ShipArcsInfo arcInfo, int agility, int hull, int shields, ShipActionsInfo actionIcons, ShipUpgradesInfo upgradeIcons, Faction subFaction = Faction.None, List<Faction> factionsAll = null, string description = null, string abilityText = "")
+        public ShipCardInfo(string shipName, BaseSize baseSize, Faction faction, ShipArcsInfo arcInfo, int agility, int hull, int shields, ShipActionsInfo actionIcons, ShipUpgradesInfo upgradeIcons, Faction subFaction = Faction.None, List<Faction> factionsAll = null, string description = null, string abilityText = "", int energy=0)
         {
             ShipName = shipName;
             BaseSize = baseSize;
@@ -41,6 +42,7 @@ namespace Ship
             Agility = agility;
             Hull = hull;
             Shields = shields;
+            Energy = energy;							
 
             ActionIcons = actionIcons;
             UpgradeIcons = upgradeIcons;

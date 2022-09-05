@@ -48,6 +48,11 @@ namespace Obstacles
             // Nothing
         }
 
+        public override void OnLandedHugeShip(GenericShip ship, int ShipSection)
+        {
+            // Nothing
+        }
+		 
         public override void OnShotObstructedExtra(GenericShip attacker, GenericShip defender)
         {
             // Only default effect

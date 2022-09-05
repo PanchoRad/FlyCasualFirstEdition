@@ -50,23 +50,31 @@ namespace Movement
         Complex,
         Purple
     }
-
+    public enum MovementEnergy
+    {
+        None,
+        Energy0,
+        Energy1,
+        Energy2,
+        Energy3
+    }	 
     public struct ManeuverHolder
     {
         public ManeuverSpeed Speed;
         public ManeuverDirection Direction;
         public ManeuverBearing Bearing;
+        public MovementEnergy EnergyGain;							 
         public MovementComplexity ColorComplexity;
 
         private string shipTag;
 
-        public ManeuverHolder(ManeuverSpeed speed, ManeuverDirection direction, ManeuverBearing bearing, MovementComplexity complexity = MovementComplexity.None)
+        public ManeuverHolder(ManeuverSpeed speed, ManeuverDirection direction, ManeuverBearing bearing,  MovementComplexity complexity = MovementComplexity.None, MovementEnergy energyGain = MovementEnergy.None)
         {
             Speed = speed;
             Direction = direction;
             Bearing = bearing;
             ColorComplexity = complexity;
-
+            EnergyGain = energyGain;
             shipTag = null;
         }
 
@@ -166,9 +174,34 @@ namespace Movement
                     break;
             }
 
+            MovementEnergy energyGain = MovementEnergy.None;
+            if (arrParameters.Length > 4) {
+                switch (arrParameters[4])
+                {
+                    case "E-":
+                        energyGain = MovementEnergy.None;
+                        break;
+                    case "E0":
+                        energyGain = MovementEnergy.Energy0;
+                        break;
+                    case "E1":
+                        energyGain = MovementEnergy.Energy1;
+                        break;
+                    case "E2":
+                        energyGain = MovementEnergy.Energy2;
+                        break;
+                    case "E3":
+                        energyGain = MovementEnergy.Energy3;
+                        break;
+                    default:
+                        energyGain = MovementEnergy.None;
+                        break;
+                }
+            }     															
             Speed = speed;
             Direction = direction;
             Bearing = bearing;
+            EnergyGain = energyGain;									
 
             ship = ship ?? Selection.ThisShip;
             shipTag = ship.GetTag();

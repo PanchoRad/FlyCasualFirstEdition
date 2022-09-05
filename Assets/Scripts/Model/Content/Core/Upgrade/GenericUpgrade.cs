@@ -10,6 +10,8 @@ using Ship;
 using Editions;
 using BoardTools;
 using Movement;
+using Mods;
+using Mods.ModsList;		   				
 
 namespace Upgrade
 {
@@ -47,6 +49,9 @@ namespace Upgrade
         Title,
         Configuration,
         TacticalRelay,
+        Team,   //FG
+        Cargo,  //FG
+        Hardpoint,  //FG
         None,
         Omni // Free Mode Extra Option
     }
@@ -250,7 +255,21 @@ namespace Upgrade
             foreach (var ability in UpgradeAbilities)
             {
                 ability.InitializeForSquadBuilder(this);
-                ability.ActivateAbility();
+                //FG
+                if (ModsManager.Mods[typeof(MobileTurretFEMod)].IsOn)
+                {
+                    // replace Any Turret Upgrades by a Single Turret (MOD FE1.5)
+                    if (this.UpgradeInfo.HasType(UpgradeType.Turret))
+                    {                       
+                        this.UpgradeInfo.WeaponInfo.ArcRestrictions.Add(Arcs.ArcType.SingleTurret);
+                        this.UpgradeInfo.WeaponInfo.ArcRestrictions.Remove(Arcs.ArcType.Front);
+                        this.UpgradeInfo.WeaponInfo.CanShootOutsideArc = false;
+                        GenericShip HostShip = this.HostShip;
+                        HostShip.ShipInfo.ArcInfo.Arcs.Add(new ShipArcInfo(Arcs.ArcType.SingleTurret,this.UpgradeInfo.WeaponInfo.AttackValue));
+                        HostShip.AddFreeMoveArcAction(HostShip);
+                    }
+                }                
+				ability.ActivateAbility();						  
             }
         }
 

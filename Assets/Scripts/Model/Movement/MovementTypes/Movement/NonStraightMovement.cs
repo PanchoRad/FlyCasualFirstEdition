@@ -13,7 +13,9 @@ namespace Movement
         protected bool movementFinisherLaunched;
         private float lastPlanningRotation = 0;
         private float lastPlanningRotation2 = 0;
-
+        private Vector3 HugeShipTurnPivot;
+        private Vector3 HugeShipTranslate;
+        private float HugeShipRotate;										  
         // GENERAL
 
         public NonStraightMovement(int speed, ManeuverDirection direction, ManeuverBearing bearing, MovementComplexity color) : base(speed, direction, bearing, color)
@@ -42,7 +44,8 @@ namespace Movement
 
         public override void UpdateMovementExecution()
         {
-            float progressDelta = AnimationSpeed * Time.deltaTime;
+            float progressDelta = (!TheShip.isHugeShip) ? AnimationSpeed * Time.deltaTime : 0.3f*AnimationSpeed * Time.deltaTime;
+            float finisherRatio = (!TheShip.isHugeShip) ? 0.2f : 0.0f;
 
             progressDelta = Mathf.Clamp(progressDelta, 0, Mathf.Abs(ProgressTarget - ProgressCurrent));
             ProgressCurrent += progressDelta;
@@ -52,18 +55,29 @@ namespace Movement
                 float turningDirection = (Direction == ManeuverDirection.Right) ? 1 : -1;
 
                 int progressDirection = 1;
-                TheShip.RotateAround(TheShip.TransformPoint(new Vector3(turningAroundDistance * turningDirection, 0, 0)), turningDirection * progressDelta * progressDirection);
+                if (!TheShip.isHugeShip) { 
+                    TheShip.RotateAround(TheShip.TransformPoint(new Vector3(turningAroundDistance * turningDirection, 0, 0)), turningDirection * progressDelta * progressDirection);
+                    if (ProgressTarget != 0) TheShip.RotateModelDuringTurn((ProgressCurrent / ProgressTarget) * (1 - finisherRatio * finisherTargetSuccess), Direction);
+                    UpdateRotation();
+                }
+                else
+                {                    
+                    CalcHugeShipMovement(progressDelta / ProgressTarget, turningDirection, true);
+                    TheShip.RotateAround(HugeShipTurnPivot, HugeShipRotate * turningDirection);
 
-                if (ProgressTarget != 0) TheShip.RotateModelDuringTurn((ProgressCurrent / ProgressTarget) * (1 - 0.2f*finisherTargetSuccess), Direction);
-                UpdateRotation();
+                    TheShip.Model.transform.Translate(-0.2f* turningDirection* HugeShipTranslate.magnitude, 0f,0.97f*HugeShipTranslate.magnitude);
+                }
             }
             else
             {
-                Vector3 progressDirection = Vector3.forward;
-                TheShip.SetPosition(Vector3.MoveTowards(TheShip.GetPosition(), TheShip.GetPosition() + TheShip.TransformDirection(progressDirection), progressDelta));
+                if (!TheShip.isHugeShip)
+                {
+                    Vector3 progressDirection = Vector3.forward;
+                    TheShip.SetPosition(Vector3.MoveTowards(TheShip.GetPosition(), TheShip.GetPosition() + TheShip.TransformDirection(progressDirection), progressDelta));
 
-                if (finisherTargetSuccess != 0) TheShip.RotateModelDuringTurn((1 - 0.2f * finisherTargetSuccess) + (ProgressCurrent / ProgressTarget) * 0.2f, Direction);
-                UpdateRotationFinisher();
+                    if (finisherTargetSuccess != 0) TheShip.RotateModelDuringTurn((1 - finisherRatio * finisherTargetSuccess) + (ProgressCurrent / ProgressTarget) * finisherRatio, Direction);
+                    UpdateRotationFinisher();
+                }				 
             }
 
             base.UpdateMovementExecution();
@@ -79,7 +93,8 @@ namespace Movement
                 }
                 else
                 {
-                    LaunchMovementFinisher();
+                    if (!TheShip.isHugeShip) LaunchMovementFinisher();
+                    else FinishMovement(); 				   
                 }
             }
         }
@@ -156,7 +171,7 @@ namespace Movement
 
         public override GameObject[] PlanMovement()
         {
-            int precision = (IsSimple) ? 10 : 100;
+            int precision = (IsSimple || TheShip.isHugeShip) ? 10 : 100;
             int firstPartLength = (int) ((float)precision * 0.8f);
             int secondPartLength = precision - firstPartLength;
 
@@ -169,6 +184,8 @@ namespace Movement
             Vector3 position = TheShip.GetPosition();
 
             GameObject lastShipStand = null;
+			float turningDirection = (Direction == ManeuverDirection.Right) ? 1 : -1;
+																		 
             for (int i = 0; i <= firstPartLength; i++)
             {
                 float step = (float)i * distancePart;
@@ -186,11 +203,19 @@ namespace Movement
 
                 if (i > 0)
                 {
-                    float turningDirection = (Direction == ManeuverDirection.Right) ? 1 : -1;
-                    ShipStand.transform.RotateAround(TheShip.TransformPoint(new Vector3(turningAroundDistance * turningDirection, 0, 0)), new Vector3(0, 1, 0), turningDirection * step);
+                    if (!TheShip.isHugeShip)
+                    {
+                        ShipStand.transform.RotateAround(TheShip.TransformPoint(new Vector3(turningAroundDistance * turningDirection, 0, 0)), new Vector3(0, 1, 0), turningDirection * step);
 
-                    UpdatePlanningRotation(ShipStand);
-
+                        UpdatePlanningRotation(ShipStand);
+                    }
+                    else
+                    {
+                        CalcHugeShipMovement((float)i / (float)firstPartLength, turningDirection,true);
+                        ShipStand.transform.RotateAround(HugeShipTurnPivot, new Vector3(0, 1, 0), HugeShipRotate * turningDirection);
+                        ShipStand.transform.Translate(HugeShipTranslate);
+                    }
+                    
                     if (i == firstPartLength) lastShipStand = ShipStand;
                 }
 
@@ -203,7 +228,8 @@ namespace Movement
             savedShipStand.transform.localEulerAngles -= new Vector3(0f, lastPlanningRotation, 0f);
 
             position = lastShipStand.transform.position;
-            distancePart = TheShip.ShipBase.GetShipBaseDistance() / secondPartLength;
+            // No need to offset final position by BaseLength in case of Huge Ships
+            distancePart = (!TheShip.isHugeShip) ? TheShip.ShipBase.GetShipBaseDistance() / secondPartLength : 0.0f; ;
             for (int i = 1; i <= secondPartLength; i++)
             {
                 position = Vector3.MoveTowards(position, position + savedShipStand.transform.TransformDirection(Vector3.forward), distancePart);
@@ -219,7 +245,8 @@ namespace Movement
                     }
                 }
 
-                UpdatePlanningRotationFinisher(ShipStand);
+				if (!TheShip.isHugeShip) UpdatePlanningRotationFinisher(ShipStand);
+
 
                 result[i + firstPartLength] = ShipStand;
 
@@ -233,6 +260,38 @@ namespace Movement
             return result;
         }
 
+
+        private void CalcHugeShipMovement(float ProgressRatio, float turningDirection, bool prediction)
+        {
+            HugeShipTurnPivot = (Direction == ManeuverDirection.Right) ?
+                                                  TheShip.Model.transform.Find("RotationHelper/RotationHelper2/ShipAllParts/ShipBase/TemplateLoc_CL_RH").position :
+                                                  TheShip.Model.transform.Find("RotationHelper/RotationHelper2/ShipAllParts/ShipBase/TemplateLoc_CL_LH").position;
+            float ForwardDistanceStep;
+            float LateralDistanceStep;
+            float TurnAngleStep;
+            switch (Speed)
+            {
+                case 1:
+                    TurnAngleStep = 30.0f * ProgressRatio;
+                    ForwardDistanceStep = 0.4875f * ProgressRatio;
+                    LateralDistanceStep = (prediction)?-0.1875f * ProgressRatio : 0.0f;
+                    break;
+                case 2:
+                    TurnAngleStep = 30.0f * ProgressRatio;
+                    ForwardDistanceStep = 0.9375f * ProgressRatio;
+                    LateralDistanceStep = (prediction) ? -0.4f * ProgressRatio : 0.0f;
+                    break;
+                default:
+                    TurnAngleStep = 30.0f * ProgressRatio;
+                    ForwardDistanceStep = 0.9375f * ProgressRatio;
+                    LateralDistanceStep = (prediction) ? -0.4f * ProgressRatio : 0.0f;
+                    break;
+            }
+            HugeShipTranslate.x = turningDirection * LateralDistanceStep;
+            HugeShipTranslate.y = 0f;
+            HugeShipTranslate.z = ForwardDistanceStep;
+            HugeShipRotate = TurnAngleStep;
+        }
         public override GameObject[] PlanFinalPosition()
         {
             //Temporary
@@ -256,16 +315,22 @@ namespace Movement
             }
 
             float turningDirection = (Direction == ManeuverDirection.Right) ? 1 : -1;
-            ShipStand.transform.RotateAround(TheShip.TransformPoint(new Vector3(turningAroundDistance * turningDirection, 0, 0)), new Vector3(0, 1, 0), turningDirection * distance);
-
-            UpdatePlanningRotation(ShipStand);
-
+			if (!TheShip.isHugeShip) { 
+                ShipStand.transform.RotateAround(TheShip.TransformPoint(new Vector3(turningAroundDistance * turningDirection, 0, 0)), new Vector3(0, 1, 0), turningDirection * distance);
+                UpdatePlanningRotation(ShipStand);
+            } else
+            {
+                CalcHugeShipMovement(1.0f, turningDirection,true);
+                ShipStand.transform.RotateAround(HugeShipTurnPivot, new Vector3(0, 1, 0), HugeShipRotate * turningDirection);
+                ShipStand.transform.Translate(HugeShipTranslate);
+            }
             position = ShipStand.transform.position;
-            distance = TheShip.ShipBase.GetShipBaseDistance();
+			distance = (!TheShip.isHugeShip) ? TheShip.ShipBase.GetShipBaseDistance() : 0.0f; 
 
-            ShipStand.transform.position = Vector3.MoveTowards(position, position + ShipStand.transform.TransformDirection(Vector3.forward), distance);
-            
-            UpdatePlanningRotationFinisher(ShipStand);
+            ShipStand.transform.position = Vector3.MoveTowards(position, position + ShipStand.transform.TransformDirection(Vector3.forward), distance);          
+			
+            if (!TheShip.isHugeShip) UpdatePlanningRotationFinisher(ShipStand);
+
 
             result[0] = ShipStand;
 

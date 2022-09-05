@@ -52,7 +52,7 @@ public partial class MainMenu : MonoBehaviour {
         CurrentPanel.SetActive(false);
 
         GameObject panel = GameObject.Find("UI/Panels").transform.Find(panelName).gameObject;
-        InitializePanelContent(panelName, CurrentPanel.name);
+        InitializePanelContent(panelName, panel.name);  
         panel.SetActive(true);
         CurrentPanel = panel;
     }

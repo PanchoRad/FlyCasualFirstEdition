@@ -184,7 +184,15 @@ namespace AI.Aggressor
 
             foreach (GenericShip ship in Roster.GetPlayer(Player).Ships.Values)
             {
+     
                 PlannedShipPositions[ship] += new Vector3(shift, 0, Board.BoardIntoWorld(Direction * -91.44f / 2f) + Direction * Board.BoardIntoWorld(Board.RANGE_1));
+                if (ship.isHugeShip)
+                {
+                    // correct starting position for huge ship
+                    Dictionary<string, float> Bounds = ship.ShipBase.GetBounds();
+                    Vector3 Position = ship.GetCenter();
+                    PlannedShipPositions[ship] -= new Vector3(0.0f, 0.0f, (Bounds["maxZ"] - Bounds["minZ"]) / 2f);
+                }
             }
         }
 

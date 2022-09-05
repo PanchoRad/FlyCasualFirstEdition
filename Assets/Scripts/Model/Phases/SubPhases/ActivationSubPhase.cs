@@ -33,13 +33,21 @@ namespace SubPhases
 
         public override void Next()
         {
-            bool success = GetNextActivation(RequiredInitiative);
+            List<GenericShip> AllShips = new List<GenericShip>(Roster.AllShips.Values.ToList());
+            List<GenericShip> NonHugeShipsMoveToGo = AllShips
+                 .Where(n => n.isHugeShip == false)
+                 .Where(n => n.IsManeuverPerformed == false)
+                 .ToList<GenericShip>();
+
+            if (NonHugeShipsMoveToGo!=null && NonHugeShipsMoveToGo.Count() == 0) RequiredInitiative = PILOTSKILL_MIN - 1; // Now lets activate Huge Ships
+
+            bool success = GetNextActivation(RequiredInitiative, (NonHugeShipsMoveToGo.Count() > 0));
             if (!success)
             {
-                int nextPilotSkill = GetNextPilotSkill(RequiredInitiative);
+                int nextPilotSkill = GetNextPilotSkill(RequiredInitiative, (NonHugeShipsMoveToGo.Count() > 0));
                 if (nextPilotSkill != int.MinValue)
                 {
-                    success = GetNextActivation(nextPilotSkill);
+                    success = GetNextActivation(nextPilotSkill, (NonHugeShipsMoveToGo.Count() > 0));
                 }
                 else
                 {
@@ -58,24 +66,31 @@ namespace SubPhases
 
         }
 
-        private bool GetNextActivation(int pilotSkill)
+        private bool GetNextActivation(int pilotSkill, bool NonHugeShipsMoveToGo)
         {
 
             bool result = false;
+					   
+            List<GenericShip> AllShips = new List<GenericShip>(Roster.AllShips.Values.ToList());
+            List<GenericShip> pilotSkillResults = AllShips
+                 .Where(n => n.State.Initiative == pilotSkill)
+                 .Where(n => n.isHugeShip == !NonHugeShipsMoveToGo)
+                 .Where(n => n.IsManeuverPerformed == false)
+                 .ToList<GenericShip>();
 
-            var pilotSkillResults =
-                from n in Roster.AllShips
-                where n.Value.State.Initiative == pilotSkill
-                where n.Value.IsManeuverPerformed == false
-                select n;
-
+            //var pilotSkillResults =
+            //    from n in Roster.AllShips
+            //    where n.Value.State.Initiative == pilotSkill
+            //    where n.Value.isHugeShip == (!NonHugeShipsMoveToGo)
+            //    where n.Value.IsManeuverPerformed == false
+            //    select n;
             if (pilotSkillResults.Count() > 0)
             {
                 RequiredInitiative = pilotSkill;
 
                 var playerNoResults =
                     from n in pilotSkillResults
-                    where n.Value.Owner.PlayerNo == Phases.PlayerWithInitiative
+                    where n.Owner.PlayerNo == Phases.PlayerWithInitiative
                     select n;
 
                 if (playerNoResults.Count() > 0)
@@ -93,20 +108,21 @@ namespace SubPhases
             return result;
         }
 
-        private int GetNextPilotSkill(int pilotSkillMin)
+        private int GetNextPilotSkill(int pilotSkillMin, bool NonHugeShipsMoveToGo)
         {
             int result = int.MinValue;
-
+            List<GenericShip> AllShips = new List<GenericShip>(Roster.AllShips.Values.ToList());
             var ascPilotSkills =
-                from n in Roster.AllShips
-                where n.Value.State.Initiative > pilotSkillMin
-                where n.Value.IsManeuverPerformed == false
-                orderby n.Value.State.Initiative
-                select n;
-
+                    from n in AllShips
+                    where n.State.Initiative  > pilotSkillMin
+                    where n.IsManeuverPerformed == false
+                    where n.isHugeShip == (!NonHugeShipsMoveToGo)
+                    orderby n.State.Initiative
+                    select n;
+            
             if (ascPilotSkills.Count() > 0)
             {
-                result = ascPilotSkills.First().Value.State.Initiative;
+                result = ascPilotSkills.First().State.Initiative;
             }
 
             return result;

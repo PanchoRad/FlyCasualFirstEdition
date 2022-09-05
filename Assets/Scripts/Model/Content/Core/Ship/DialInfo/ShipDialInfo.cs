@@ -16,7 +16,14 @@ namespace Ship
             Movement = new ManeuverHolder(speed, direction, bearing);
             Complexity = complexity;
         }
-    }
+
+        //FG
+        public ManeuverInfo(ManeuverSpeed speed, ManeuverDirection direction, ManeuverBearing bearing, MovementComplexity complexity, MovementEnergy energyGain)
+        {
+            Movement = new ManeuverHolder(speed, direction, bearing, complexity, energyGain);
+            Complexity = complexity;
+        }
+     }
 
     public class ShipDialInfo
     {
@@ -47,5 +54,18 @@ namespace Ship
         {
             PrintedDial.Add(maneuver, complexity);
         }
+
+        public int GetManeuverEnergyGain(ManeuverHolder maneuver)
+        {
+            ManeuverHolder match = PrintedDial.First(m => m.Key.Speed == maneuver.Speed && m.Key.Direction == maneuver.Direction && m.Key.Bearing == maneuver.Bearing).Key;
+            switch (match.EnergyGain)
+            {
+                case MovementEnergy.Energy0:    return 0;
+                case MovementEnergy.Energy1:    return 1;
+                case MovementEnergy.Energy2:    return 2;
+                case MovementEnergy.Energy3:    return 3;
+                default:                        return 0;
+            }
+        } 
     }
 }

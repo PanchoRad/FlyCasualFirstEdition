@@ -239,7 +239,8 @@ namespace SubPhases
             }
             else
             {
-                Messages.ShowErrorToHuman(Selection.ThisShip.PilotInfo.PilotName + " cannot perform any free actions");
+                //if (ActionsHolder.CurrentAction != ActionList.RotateArcAction)  //FG
+                //   Messages.ShowErrorToHuman(Selection.ThisShip.PilotInfo.PilotName + " cannot perform any free actions");  
                 Selection.ThisShip.IsFreeActionSkipped = true;
                 ActionsHolder.CurrentAction = null;
                 CallBack();

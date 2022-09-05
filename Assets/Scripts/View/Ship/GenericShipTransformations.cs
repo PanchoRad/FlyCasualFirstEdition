@@ -57,7 +57,8 @@ namespace Ship
 
         public Vector3 GetBack()
         {
-            return Model.transform.TransformPoint(0, 0, -2 * ShipBase.HALF_OF_SHIPSTAND_SIZE);
+            return (this.isHugeShip) ? Model.transform.TransformPoint(0, 0, -ShipBase.LENGTH_OF_SHIPBASESTAND) 
+                                     : Model.transform.TransformPoint(0, 0, -2 * ShipBase.HALF_OF_SHIPSTAND_SIZE);
         }
 
         public Vector3 GetLeft()

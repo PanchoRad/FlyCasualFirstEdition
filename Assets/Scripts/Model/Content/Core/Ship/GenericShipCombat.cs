@@ -873,6 +873,12 @@ namespace Ship
 
             return allWeapons;
         }
+        public bool HasAttackVectors()
+        {
+            List<IShipWeapon> allWeapons = GetAllWeapons();
+            if ((this.isHugeShip) && (this.ShipInfo.Firepower == 0)) return ((allWeapons.Count - 1) > 0);
+            return allWeapons.Count>0;
+        }					 
 
         public void CallCheckSufferBombDetonation(Action callback)
         {

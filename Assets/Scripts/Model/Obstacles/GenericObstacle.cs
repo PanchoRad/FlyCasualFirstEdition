@@ -28,6 +28,7 @@ namespace Obstacles
 
         public abstract void OnHit(GenericShip ship);
         public abstract void OnLanded(GenericShip ship);
+        public abstract void OnLandedHugeShip(GenericShip ship, int ShipSection);
         public abstract void OnShotObstructedExtra(GenericShip attacker, GenericShip defender);
 
         public void Spawn(string name, Transform obstacleHolder)

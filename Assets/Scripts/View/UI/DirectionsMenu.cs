@@ -154,6 +154,36 @@ public static class DirectionsMenu
                         delegate { UI.AssignManeuverButtonPressed(button.name); }
                     );
 
+                    // FG  Update and shows the maneuver associated energy gain
+                    ManeuverHolder maneuver = new ManeuverHolder(maneuverData.Key);
+                    int EnergyGain = Selection.ThisShip.DialInfo.GetManeuverEnergyGain(maneuver);
+                    GameObject EnergyTag = button.transform.FindChild("Energy").gameObject;
+                    if (EnergyGain == 0) 
+                    {
+                        if (EnergyTag != null) EnergyTag.SetActive(false);
+                    }
+                    else 
+                    {
+                        if (EnergyTag != null)
+                        {
+                            EnergyTag.SetActive(true);
+                            switch (EnergyGain) 
+                            {
+                                case 1: 
+                                   EnergyTag.GetComponent<UnityEngine.UI.Text>().text = "(";
+                                   break;
+                                case 2: 
+                                   EnergyTag.GetComponent<UnityEngine.UI.Text>().text = "((";
+                                   break;
+                                case 3: 
+                                   EnergyTag.GetComponent<UnityEngine.UI.Text>().text = "(((";
+                                   break;
+                                default: 
+                                   EnergyTag.SetActive(false);
+                                   break;
+                           }
+                        }
+                    }
                     GameObject number = DirectionsWindow.transform.Find("Numbers").Find("Speed" + maneuverSpeed).Find("Number").gameObject;
                     number.SetActive(true);
                 }

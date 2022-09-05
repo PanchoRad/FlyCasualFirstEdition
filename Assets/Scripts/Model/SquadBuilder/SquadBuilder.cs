@@ -340,6 +340,31 @@ namespace SquadBuilderNS
             UpdateSquadCostForShipsMenu(GetCurrentSquadCost());
         }
 
+       public static void AddHugeShipPilots()
+        {
+            // In case of Huge Ships, the pilot card is always automatically selected
+            ShipRecord shipRecord = AllShips.Find(n => n.ShipName == CurrentShip);
+            List<PilotRecord> AllPilotsFiltered = AllPilots
+                .Where(n =>
+                  n.PilotShip == shipRecord
+                  && n.PilotFaction == CurrentSquadList.SquadFaction
+                  && n.Instance.GetType().ToString().Contains(Edition.Current.NameShort)
+                  && !n.Instance.IsHiddenSquadbuilderOnly
+                 )
+                 .OrderByDescending(n => n.PilotSkill)
+                 .OrderByDescending(n => n.Instance.PilotInfo.Cost)
+                 .ToList();
+            foreach (PilotRecord pilot in AllPilotsFiltered)
+            {
+                GenericShip newShipInstance = (GenericShip)Activator.CreateInstance(Type.GetType(pilot.PilotTypeName));
+                Edition.Current.AdaptShipToRules(newShipInstance);
+                Edition.Current.AdaptPilotToRules(newShipInstance);
+                AddPilotToSquad(newShipInstance, GetSquadList(CurrentPlayer), isFromUi: false);
+            }
+            MainMenu.CurrentMainMenu.ChangePanel("SquadBuilderPanel");
+            
+            UpdateSquadCostForPilotsMenu(GetCurrentSquadCost());
+        }
         public static void ShowPilotsFilteredByShipAndFaction()
         {
             ShowLoadingContentStub("Pilot");
@@ -482,7 +507,20 @@ namespace SquadBuilderNS
 
         public static void RemoveCurrentShip()
         {
-            CurrentSquadList.RemoveShip(CurrentSquadBuilderShip);
+            if (CurrentSquadBuilderShip.Instance.isHugeShip)
+            {
+                List<SquadBuilderShip> AssociatedShips = new List<SquadBuilderShip>(SquadBuilder.CurrentSquadList.GetShips());
+                foreach (SquadBuilderShip Ship in AssociatedShips) 
+                {
+                    if (Ship.Instance.ShipInfo.ShipName== CurrentSquadBuilderShip.Instance.ShipInfo.ShipName)
+                    {
+                        CurrentSquadList.RemoveShip(Ship);
+                    }
+                    
+                }
+            }
+            else
+			CurrentSquadList.RemoveShip(CurrentSquadBuilderShip);
         }
 
         private static void OpenSelectUpgradeMenu(UpgradeSlot slot, GenericUpgrade upgrade)

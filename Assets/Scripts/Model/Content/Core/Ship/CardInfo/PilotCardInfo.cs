@@ -1,4 +1,5 @@
 ﻿using System;
+using Actions;			  
 using System.Collections.Generic;
 using Upgrade;
 
@@ -16,6 +17,8 @@ namespace Ship
         public Type AbilityType { get; protected set; }
         public string AbilityText { get; private set; }
 
+        public List<ActionInfo> AddedActions { get; private set; }
+        
         public int Force { get; set; }
         public int Charges { get; private set; }
         public bool RegensCharges { get; private set; }
@@ -26,7 +29,11 @@ namespace Ship
         public Faction Faction { get; private set; }
         public int SEImageNumber { get; private set; }
 
-        public PilotCardInfo(string pilotName, int initiative, int cost, bool isLimited = false, int limited = 0, Type abilityType = null, string pilotTitle = "", int force = 0, int charges = 0, bool regensCharges = false, UpgradeType extraUpgradeIcon = UpgradeType.None, List<UpgradeType> extraUpgradeIcons = null, Faction factionOverride = Faction.None, int seImageNumber = 0, string abilityText = "")
+        public PilotCardInfo(string pilotName, int initiative, int cost, bool isLimited = false, 
+                             int limited = 0, Type abilityType = null, string pilotTitle = "", int force = 0, int charges = 0, 
+                             bool regensCharges = false, UpgradeType extraUpgradeIcon = UpgradeType.None, List<UpgradeType> extraUpgradeIcons = null,
+                             ActionInfo addAction = null, List<ActionInfo> addActions = null, Faction factionOverride = Faction.None, 
+                             int seImageNumber = 0, string abilityText = "")
         {
             PilotName = pilotName;
             PilotTitle = pilotTitle;
@@ -56,6 +63,10 @@ namespace Ship
             if (extraUpgradeIcon != UpgradeType.None) ExtraUpgrades.Add(extraUpgradeIcon);
             if (extraUpgradeIcons != null) ExtraUpgrades.AddRange(extraUpgradeIcons);
             if (factionOverride != Faction.None) Faction = factionOverride;
+
+            AddedActions = new List<ActionInfo>();
+            if (addAction != null) AddedActions.Add(addAction);
+            if (addActions != null) AddedActions.AddRange(addActions);																  
         }
     }
 }

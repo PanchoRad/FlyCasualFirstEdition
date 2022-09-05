@@ -26,10 +26,13 @@ namespace ActionsList
         private void SpendEnergyForShields()
         {
             var ship = Selection.ThisShip;
-            var energyTokenCount = ship.State.Energy;
+            var energyTokenCount = ship.State.EnergyCurrent;
             //var maxRecoverableShields = ship.MaxShields - ship.Shields;            
 
             SpendEnergy(energyTokenCount, Selection.ThisShip);
+            ship.State.EnergyCurrent = 0;
+            //Roster.UpdateShipStats(ship);
+            Roster.UpdateRosterEnergyIndicators(ship);										 										  													  
         }
 
         private void SpendEnergy(int count, GenericShip ship)
@@ -54,7 +57,7 @@ namespace ActionsList
         {
             int result = 0;
 
-            int recoverableShields = Mathf.Min(Selection.ThisShip.State.ShieldsMax - Selection.ThisShip.State.ShieldsCurrent, Selection.ThisShip.State.Energy);
+            int recoverableShields = Mathf.Min(Selection.ThisShip.State.ShieldsMax - Selection.ThisShip.State.ShieldsCurrent, Selection.ThisShip.State.EnergyCurrent);
             result = recoverableShields * 110;
 
             return result;

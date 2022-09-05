@@ -19,7 +19,7 @@ namespace Editions
         public override string Name { get { return "First Edition"; } }
         public override string NameShort { get { return "FirstEdition"; } }
 
-        public override int MaxPoints { get { return 100; } }
+        public override int MaxPoints { get { return 120; } }
         public override int MinShipsCount { get { return 1; } }
         public override int MaxShipsCount { get { return 8; } }
         public override string CombatPhaseName { get { return "Combat"; } }
@@ -87,10 +87,13 @@ namespace Editions
             {
                 return new Dictionary<BaseSize, int>()
                 {
-                    { BaseSize.None,    int.MaxValue },
-                    { BaseSize.Small,   1 },
-                    { BaseSize.Medium,  2 },
-                    { BaseSize.Large,   2 }
+                    { BaseSize.None,     int.MaxValue },
+                    { BaseSize.Small,    1 },
+                    { BaseSize.Medium,   2 },   //FG MOD FE1.5
+                    { BaseSize.Large,    2 },
+                    { BaseSize.Huge,     10 },  //FG Huge ship does not get ionised
+                    { BaseSize.HugeDualAft, 10 },
+                    { BaseSize.HugeDualFore, 10 }
                 };
             }
         }

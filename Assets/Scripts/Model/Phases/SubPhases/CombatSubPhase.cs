@@ -79,6 +79,7 @@ namespace SubPhases
                 from n in Roster.AllUnits
                 where n.Value.State.CombatActivationAtInitiative == initiative
                 where n.Value.HasCombatActivation
+                where n.Value.HasAttackVectors()   //FG checks if ship has any attack vector (some huge ships have no primary attack													
                 select n;
 
             if (pilotSkillResults.Count() > 0)

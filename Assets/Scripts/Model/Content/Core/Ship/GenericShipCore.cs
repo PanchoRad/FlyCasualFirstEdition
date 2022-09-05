@@ -158,7 +158,8 @@ namespace Ship
             State.HullMax = ShipInfo.Hull;
             State.ShieldsMax = ShipInfo.Shields;
             State.ShieldsCurrent = State.ShieldsMax;
-
+            State.EnergyCurrent = 0;
+            State.EnergyMax = ShipInfo.Energy;
             State.MaxForce = PilotInfo.Force;
 
             State.MaxCharges = PilotInfo.Charges > 0 ? PilotInfo.Charges : ShipInfo.Charges;
@@ -197,8 +198,12 @@ namespace Ship
 
             Damage = new Damage(this);
             ActionBar.Initialize();
+            if (this.isHugeShip)
+            {
+                this.OnPerformActionStepStart += GainManeuverEnergy;
+            }
         }
-        //-----------
+        //---------------											 
         private void PerformFreeFocusAction(object sender, System.EventArgs e) // Added FG (MOD FE1.5)
         {
             this.AskPerformFreeAction(
@@ -261,6 +266,14 @@ namespace Ship
             ArcsInfo = new ArcsHolder(this);
             foreach (ShipArcInfo arc in ShipInfo.ArcInfo.Arcs)
             {
+                // FG:  ADDED MOD   (Mobile Turrets)   
+                if (ModsManager.Mods[typeof(MobileTurretFEMod)].IsOn)
+                {
+                    if (arc.ArcType == ArcType.TurretPrimaryWeapon)
+                    {
+                        arc.ChangeArcType(ArcType.TurretPrimaryWeapon, ArcType.SingleTurret);
+                    }
+                }													   
                 switch (arc.ArcType)
                 {
                     case ArcType.Front:

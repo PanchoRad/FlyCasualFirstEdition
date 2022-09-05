@@ -124,6 +124,8 @@ namespace Obstacles
             foreach (GenericShip ship in Roster.AllShips.Values)
             {
                 ship.ObstaclesLanded.RemoveAll(n => n == obstacle);
+                ship.IgnoreObstaclesList.RemoveAll(n => n == obstacle);
+                ship.ObstaclesHit.RemoveAll(n => n == obstacle);
             }
 
             Instance.ChosenObstacles.Remove(obstacle);

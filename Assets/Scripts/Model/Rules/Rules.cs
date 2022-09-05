@@ -15,7 +15,7 @@ public static class Rules
     public static OffTheBoardRule OffTheBoard { get; private set; }
     public static CollisionRules Collision { get; private set; }
     public static ActionsRule Actions { get; private set; }
-    public static AsteroidLandedRule AsteroidLanded { get; private set; }
+    public static ObstacleLandedRule ObstacleLanded { get; private set; }  //FG
     public static ObstaclesHitRule AsteroidHit { get; private set; }
     public static MineHitRule MineHit { get; private set; }
     public static AsteroidObstructionRule AsteroidObstruction { get; private set; }
@@ -47,7 +47,7 @@ public static class Rules
         OffTheBoard = new OffTheBoardRule();
         Collision = new CollisionRules();
         Actions = new ActionsRule();
-        AsteroidLanded = new AsteroidLandedRule();
+        ObstacleLanded = new ObstacleLandedRule(); //FG
         AsteroidHit = new ObstaclesHitRule();
         MineHit = new MineHitRule();
         AsteroidObstruction = new AsteroidObstructionRule();

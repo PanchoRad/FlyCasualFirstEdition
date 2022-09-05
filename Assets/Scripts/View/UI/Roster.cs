@@ -19,6 +19,15 @@ public static partial class Roster {
     private static int SHIP_PANEL_HEIGHT = 110;
     private static int SPACE_BETWEEN_PANELS = 5;
 
+    private static int GetShipPanelWidth(GenericShip ship)
+    {
+        return (ship.isHugeShip) ? (int)(1.25*SHIP_PANEL_WIDTH) : SHIP_PANEL_WIDTH;
+    }
+    //private static int GetShipPanelHeight(GenericShip ship)
+    //{
+    //    return (ship.isHugeShip) ? (int)(1.16*SHIP_PANEL_HEIGHT) : SHIP_PANEL_HEIGHT;
+    //}
+	
     public static IEnumerator Initialize()
     {
         Players = new List<GenericPlayer>();
@@ -35,8 +44,8 @@ public static partial class Roster {
 
     public static GameObject CreateRosterInfo(GenericShip newShip)
     {
-        GameObject prefab = (GameObject)Resources.Load("Prefabs/RosterPanel", typeof(GameObject));
-
+        GameObject prefab = newShip.isHugeShip ? (GameObject)Resources.Load("Prefabs/RosterPanelHuge", typeof(GameObject))
+                                               : (GameObject)Resources.Load("Prefabs/RosterPanel", typeof(GameObject));
         int playerPanelNum = newShip.Owner.Id;
 
         GameObject newPanel = MonoBehaviour.Instantiate(prefab, GameObject.Find("UI/RostersHolder").transform.Find("TeamPlayer" + playerPanelNum).Find("RosterHolder").transform);
@@ -48,13 +57,14 @@ public static partial class Roster {
         newPanel.transform.Find("ShipInfo/ShipAgilityText").GetComponent<Text>().text = newShip.State.Agility.ToString();
         newPanel.transform.Find("ShipInfo/ShipHullText").GetComponent<Text>().text = newShip.State.HullMax.ToString();
         newPanel.transform.Find("ShipInfo/ShipShieldsText").GetComponent<Text>().text = newShip.State.ShieldsMax.ToString();
+        if (newShip.isHugeShip) newPanel.transform.Find("ShipInfo/ShipEnergyText").GetComponent<Text>().text = newShip.State.EnergyCurrent.ToString();
 
         // ALT ShipId text
         PlayerNo rosterPanelOwner = newShip.Owner.PlayerNo;
         newPanel.transform.Find("ShipInfo/ShipId").GetComponent<Text>().text = newShip.ShipId.ToString();
         newPanel.transform.Find("ShipIdText/Text").GetComponent<Text>().text = newShip.ShipId.ToString();
         newPanel.transform.Find("ShipIdText/Text").GetComponent<Text>().color = (newShip.Owner.PlayerNo == PlayerNo.Player1) ? Color.green : Color.red;
-        newPanel.transform.Find("ShipIdText").localPosition = new Vector3((rosterPanelOwner == PlayerNo.Player1) ? SHIP_PANEL_WIDTH + 5 : -50, 0, 0);
+        newPanel.transform.Find("ShipIdText").localPosition = new Vector3((rosterPanelOwner == PlayerNo.Player1) ? GetShipPanelWidth(newShip) + 5 : -50, 0, 0);
         newPanel.transform.Find("ShipIdText").gameObject.SetActive(true);
 
         //Tooltips
@@ -72,18 +82,19 @@ public static partial class Roster {
         SubscribeSelectionByInfoPanel(shipTypeGO);
 
         //Mark
-        newPanel.transform.Find("Mark").localPosition = new Vector3((rosterPanelOwner == PlayerNo.Player1) ? SHIP_PANEL_WIDTH - 2 : -8, 0, 0);
+        newPanel.transform.Find("Mark").localPosition = new Vector3((rosterPanelOwner == PlayerNo.Player1) ? GetShipPanelWidth(newShip) - 2 : -8, 0, 0);
         SubscribeMarkByHover(newPanel);
 
         //Damage Indicators
         UpdateDamageIndicators(newShip, newPanel);
+        if (newShip.isHugeShip) UpdateEnergyIndicator(newShip, newPanel);
 
         //Assigned Maneuver Dial
         GameObject maneuverDial = newPanel.transform.Find("AssignedManeuverDial").gameObject;
         SubscribeShowManeuverByHover(maneuverDial);
         SubscribeShowPredictionByClick(maneuverDial);
-        maneuverDial.transform.localPosition = (rosterPanelOwner == PlayerNo.Player1) ? new Vector3(320, -5, 0) : new Vector3(-120, -5, 0);
-
+        maneuverDial.transform.localPosition = (rosterPanelOwner == PlayerNo.Player1) ? new Vector3(GetShipPanelWidth(newShip)+20, -5, 0) : new Vector3(-120, -5, 0);
+        
         //Tags
         newPanel.transform.Find("ShipInfo").tag = "ShipId:" + newShip.ShipId.ToString();
         maneuverDial.transform.Find("Holder").gameObject.tag = "ShipId:" + newShip.ShipId.ToString();
@@ -107,7 +118,7 @@ public static partial class Roster {
     public static void UpdateDamageIndicators(GenericShip ship, GameObject panel)
     {
         //Hull and shields
-        float panelWidth = SHIP_PANEL_WIDTH - 10;
+        float panelWidth = GetShipPanelWidth(ship) - 10;
         float hullAndShield = ship.State.HullMax + ship.State.ShieldsMax;
         float panelWidthNoDividers = panelWidth - (1 * (hullAndShield - 1));
         float damageIndicatorWidth = panelWidthNoDividers / hullAndShield;
@@ -138,6 +149,41 @@ public static partial class Roster {
             newDamageIndicator.SetActive(true);
         }
         //MonoBehaviour.Destroy(damageIndicator);
+    }
+
+    public static void UpdateEnergyIndicator(GenericShip ship, GameObject panel)
+    {
+        //Max Energy
+        float panelWidth = GetShipPanelWidth(ship) - 10;
+        float maxEnergy = ship.State.EnergyMax;
+        float panelWidthNoDividers = panelWidth - (1 * (maxEnergy - 1));
+        float energyIndicatorWidth = panelWidthNoDividers / maxEnergy;
+
+        GameObject energyIndicatorBar = panel.transform.Find("ShipInfo/EnergyBarPanel").gameObject;
+        GameObject energyIndicator = energyIndicatorBar.transform.Find("EnergyIndicator").gameObject;
+
+        foreach (Transform transform in energyIndicatorBar.transform)
+        {
+            if (transform.name != "EnergyIndicator") GameObject.Destroy(transform.gameObject);
+        }
+
+        energyIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(energyIndicatorWidth, 10);
+        for (int i = 0; i < maxEnergy; i++)
+        {
+            GameObject newEnergyIndicator = MonoBehaviour.Instantiate(energyIndicator, energyIndicatorBar.transform);
+            newEnergyIndicator.transform.localPosition = energyIndicator.transform.localPosition + new Vector3(i * (energyIndicatorWidth + 1), 0, 0);
+            if (i < ship.State.EnergyCurrent)
+            {
+                newEnergyIndicator.GetComponent<Image>().color = Color.magenta;
+                newEnergyIndicator.name = "EnergyIndicator.Energy." + (i + 1).ToString();
+            }
+            else
+            {
+                newEnergyIndicator.GetComponent<Image>().color = Color.gray;
+                newEnergyIndicator.name = "EnergyIndicator.Energy." + (i + 1).ToString();
+            }
+            newEnergyIndicator.SetActive(true);
+        }
     }
 
     public static void SubscribeShowManeuverByHover(GameObject panel)
@@ -207,15 +253,17 @@ public static partial class Roster {
         foreach (GameObject panel in rosterPlayer1)
         {
             float height = CalculateRosterPanelSize(panel);
-            panel.transform.Find("ShipInfo").GetComponent<RectTransform>().sizeDelta = new Vector2(SHIP_PANEL_WIDTH, height);
-            panel.GetComponent<RectTransform>().sizeDelta = new Vector2(SHIP_PANEL_WIDTH, height);
+            float panel_width = panel.transform.Find("ShipInfo").GetComponent<RectTransform>().rect.width;
+            panel.transform.Find("ShipInfo").GetComponent<RectTransform>().sizeDelta = new Vector2(panel_width, height);
+            panel.GetComponent<RectTransform>().sizeDelta = new Vector2(panel_width, height);
         }
 
         foreach (GameObject panel in rosterPlayer2)
         {
             float height = CalculateRosterPanelSize(panel);
-            panel.transform.Find("ShipInfo").GetComponent<RectTransform>().sizeDelta = new Vector2(SHIP_PANEL_WIDTH, height);
-            panel.GetComponent<RectTransform>().sizeDelta = new Vector2(SHIP_PANEL_WIDTH, height);
+            float panel_width = panel.transform.Find("ShipInfo").GetComponent<RectTransform>().rect.width;
+            panel.transform.Find("ShipInfo").GetComponent<RectTransform>().sizeDelta = new Vector2(panel_width, height);
+            panel.GetComponent<RectTransform>().sizeDelta = new Vector2(panel_width, height);
         }
 
     }
@@ -223,8 +271,8 @@ public static partial class Roster {
     private static int CalculateRosterPanelSize(GameObject panel)
     {
         //Upgrades
-        int currentPanelHeight = SHIP_PANEL_HEIGHT;
-
+        float panel_width = panel.transform.Find("ShipInfo").GetComponent<RectTransform>().rect.width;
+        int currentPanelHeight = (panel_width== SHIP_PANEL_WIDTH) ? SHIP_PANEL_HEIGHT : (int)(1.16 * SHIP_PANEL_HEIGHT);
         int upgradesVisible = 0;
 
         foreach (Transform icon in panel.transform.Find("ShipInfo/UpgradesBar").transform)
@@ -279,7 +327,10 @@ public static partial class Roster {
                 if (item.activeSelf)
                 {
                     item.transform.localPosition = defaultPosition + new Vector3(0f, -offset, 0f);
-                    if (i == 2) item.transform.localPosition += new Vector3(305, 0, 0);
+                    if (i == 2) {
+                        float panel_offset = ((float)SHIP_PANEL_WIDTH - item.transform.Find("ShipInfo").GetComponent<RectTransform>().rect.width);
+                        item.transform.localPosition += new Vector3(305f+panel_offset, 0f, 0f);
+                    }
                     offset += item.transform.Find("ShipInfo").GetComponent<RectTransform>().sizeDelta.y + SPACE_BETWEEN_PANELS;
                 }
             }
@@ -426,6 +477,23 @@ public static partial class Roster {
         }
     }
 
+   public static void UpdateRosterEnergyIndicators(GenericShip thisShip)
+    {
+        thisShip.InfoPanel.transform.Find("ShipInfo/ShipEnergyText").GetComponent<Text>().text = thisShip.State.EnergyCurrent.ToString();
+        foreach (Transform energyIndicator in thisShip.InfoPanel.transform.Find("ShipInfo/EnergyBarPanel").transform)
+        {
+            string[] energyIndicatorData = energyIndicator.name.Split('.');
+
+            if (energyIndicatorData.Length < 2) continue;
+
+            string type = energyIndicatorData[1];
+            int value = int.Parse(energyIndicatorData[2]);
+            if (type == "Energy")
+            {
+                energyIndicator.GetComponent<Image>().color = (value <= thisShip.State.EnergyCurrent)? Color.magenta:Color.gray;
+            }
+        }
+    }
     public static void UpdateShipStats(GenericShip thisShip)
     {
         if (thisShip.InfoPanel != null)
@@ -434,6 +502,7 @@ public static partial class Roster {
             thisShip.InfoPanel.transform.Find("ShipInfo/ShipPilotSkillText").GetComponent<Text>().text = thisShip.State.Initiative.ToString();
             thisShip.InfoPanel.transform.Find("ShipInfo/ShipFirepowerText").GetComponent<Text>().text = thisShip.State.Firepower.ToString();
             thisShip.InfoPanel.transform.Find("ShipInfo/ShipAgilityText").GetComponent<Text>().text = thisShip.State.Agility.ToString();
+            if (thisShip.isHugeShip) thisShip.InfoPanel.transform.Find("ShipInfo/ShipEnergyText").GetComponent<Text>().text = thisShip.State.EnergyCurrent.ToString();
         }
     }
 

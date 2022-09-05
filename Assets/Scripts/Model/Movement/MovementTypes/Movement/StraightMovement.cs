@@ -23,7 +23,9 @@ namespace Movement
 
         protected override float SetProgressTarget()
         {
-            return TheShip.ShipBase.GetShipBaseDistance() + Speed * GetMovement1();
+            //FG Huge Ship does not add base length
+            float BaseLength = (TheShip.isHugeShip) ? 0.0f : TheShip.ShipBase.GetShipBaseDistance();
+            return (BaseLength + (float)Speed * GetMovement1());
         }
 
         protected override float SetAnimationSpeed()
@@ -48,7 +50,9 @@ namespace Movement
 
             GameObject[] result = new GameObject[precision + 1];
 
-            float distancePart = (TheShip.ShipBase.GetShipBaseDistance() + Speed * GetMovement1()) / (float)precision;
+            //FG Huge Ship does not add base length
+            float BaseLength = (TheShip.isHugeShip) ? 0.0f : TheShip.ShipBase.GetShipBaseDistance();            
+            float distancePart = (BaseLength + (float)Speed * GetMovement1()) / (float)precision;
             Vector3 position = TheShip.GetPosition();
 
             for (int i = 0; i <= precision; i++)
@@ -76,7 +80,9 @@ namespace Movement
         {
             GameObject[] result = new GameObject[1];
 
-            float distance = (TheShip.ShipBase.GetShipBaseDistance() + Speed * GetMovement1());
+            //FG Huge Ship does not add base length
+            float BaseLength = (TheShip.isHugeShip) ? 0.0f : TheShip.ShipBase.GetShipBaseDistance();
+            float distance = (BaseLength + (float)Speed * GetMovement1());
             Vector3 position = TheShip.GetPosition();
             position += TheShip.TransformDirection(new Vector3(0,0, distance));
 

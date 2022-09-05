@@ -118,19 +118,21 @@ namespace Ship
 
         public int ShieldsCurrent { get; set; }
 
-        private int maxEnergy;
-        public int MaxEnergy
+        private int energyMax;
+        public int EnergyMax
         {
             get
             {
-                int result = maxEnergy;
+                int result = energyMax;
                 return Mathf.Max(result, 0);
             }
             set
             {
-                maxEnergy = Mathf.Max(value, 0);
+                energyMax = Mathf.Max(value, 0);
             }
         }
+
+        public int EnergyCurrent { get; set; }
 
         public int Energy
         {
