@@ -15,7 +15,9 @@ namespace UpgradesList.FirstEdition
                 UpgradeType.Crew,
                 cost: 2,
                 isLimited: true,
-                restriction: new FactionRestriction(Faction.Rebel),
+                restrictions: new UpgradeCardRestrictions(
+                    new FactionRestriction(Faction.Rebel),
+                    new BaseSizeRestriction(Ship.BaseSize.Small, Ship.BaseSize.Medium, Ship.BaseSize.Large)), 
                 abilityType: typeof(Abilities.FirstEdition.LeeboAbility)
             );
 

@@ -17,7 +17,8 @@ namespace UpgradesList.FirstEdition
                 UpgradeType.Modification,
                 cost: 3,
                 isLimited: true,
-                abilityType: typeof(Abilities.FirstEdition.ExperimentalInterfaceAbility)
+                abilityType: typeof(Abilities.FirstEdition.ExperimentalInterfaceAbility),
+                restriction: new BaseSizeRestriction(Ship.BaseSize.Small, Ship.BaseSize.Medium, Ship.BaseSize.Large)
             );
 
             Avatar = new AvatarInfo(Faction.None, new Vector2(55, 4));

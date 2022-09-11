@@ -13,7 +13,8 @@ namespace UpgradesList.FirstEdition
                 "Advanced Slam",
                 UpgradeType.Modification,
                 cost: 2,
-                abilityType: typeof(Abilities.FirstEdition.AdvancedSlamAbility)
+                abilityType: typeof(Abilities.FirstEdition.AdvancedSlamAbility),
+                restriction: new BaseSizeRestriction(Ship.BaseSize.Small, Ship.BaseSize.Medium, Ship.BaseSize.Large)
             );
         }
     }

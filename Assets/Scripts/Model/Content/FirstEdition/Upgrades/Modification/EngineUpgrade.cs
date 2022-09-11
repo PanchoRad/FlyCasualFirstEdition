@@ -12,7 +12,8 @@ namespace UpgradesList.FirstEdition
                 "Engine Upgrade",
                 UpgradeType.Modification,
                 cost: 4,
-                addAction: new ActionInfo(typeof(BoostAction))
+                addAction: new ActionInfo(typeof(BoostAction)),
+                restriction: new BaseSizeRestriction(Ship.BaseSize.Small, Ship.BaseSize.Medium, Ship.BaseSize.Large)
             );
         }
     }

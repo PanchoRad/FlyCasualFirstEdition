@@ -15,7 +15,8 @@ namespace UpgradesList.FirstEdition
                 "Recon Specialist",
                 UpgradeType.Crew,
                 cost: 3,
-                abilityType: typeof(Abilities.FirstEdition.ReconSpecialistAbility)
+                abilityType: typeof(Abilities.FirstEdition.ReconSpecialistAbility),
+                restriction: new BaseSizeRestriction(Ship.BaseSize.Small, Ship.BaseSize.Medium, Ship.BaseSize.Large)
             );
 
             Avatar = new AvatarInfo(Faction.None, new Vector2(42, 3));
