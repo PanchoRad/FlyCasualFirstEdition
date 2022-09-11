@@ -157,7 +157,7 @@ public static class DirectionsMenu
                     // FG  Update and shows the maneuver associated energy gain
                     ManeuverHolder maneuver = new ManeuverHolder(maneuverData.Key);
                     int EnergyGain = Selection.ThisShip.DialInfo.GetManeuverEnergyGain(maneuver);
-                    GameObject EnergyTag = button.transform.FindChild("Energy").gameObject;
+                    GameObject EnergyTag = button.transform.Find("Energy").gameObject;
                     if (EnergyGain == 0) 
                     {
                         if (EnergyTag != null) EnergyTag.SetActive(false);
