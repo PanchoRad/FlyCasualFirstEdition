@@ -1,0 +1,216 @@
+fileFormatVersion: 2
+guid: cf69c12dbec853d4db58726c4a700858
+ModelImporter:
+  serializedVersion: 20200
+  internalIDToNameTable:
+  - first:
+      74: 7361828475789623042
+    second: SingleTurboLaserBackLeft|CameraWithDOFAction
+  - first:
+      74: -2111976713033890297
+    second: SingleTurboLaserBackLeft|CameraWithoutDOFAction
+  - first:
+      74: -232296915657796418
+    second: SingleTurboLaserBackLeft|SingleTurboLaserBackLeftAction
+  - first:
+      74: 8550484386835398544
+    second: SingleTurboLaserBackLeft|SingleTurboLaserBackRightAction
+  - first:
+      74: 6326573681522884257
+    second: SingleTurboLaserBackLeft|SingleTurboLaserFrontLeftAction
+  - first:
+      74: 28018942555372259
+    second: SingleTurboLaserBackLeft|SingleTurboLaserFrontRightAction
+  - first:
+      74: 1905812738378794995
+    second: SingleTurboLaserBackLeft|TieFighterAction
+  - first:
+      74: 6000462805445590578
+    second: SingleTurboLaserBackRight|CameraWithDOFAction
+  - first:
+      74: -2702855438878325693
+    second: SingleTurboLaserBackRight|CameraWithoutDOFAction
+  - first:
+      74: 8242949711007729911
+    second: SingleTurboLaserBackRight|SingleTurboLaserBackLeftAction
+  - first:
+      74: 767823936322532391
+    second: SingleTurboLaserBackRight|SingleTurboLaserBackRightAction
+  - first:
+      74: 4377013460144697839
+    second: SingleTurboLaserBackRight|SingleTurboLaserFrontLeftAction
+  - first:
+      74: -2429243193524170892
+    second: SingleTurboLaserBackRight|SingleTurboLaserFrontRightAction
+  - first:
+      74: 6847210539356707755
+    second: SingleTurboLaserBackRight|TieFighterAction
+  - first:
+      74: 3183975463800530742
+    second: SingleTurboLaserFrontLeft|CameraWithDOFAction
+  - first:
+      74: -3367087965162785056
+    second: SingleTurboLaserFrontLeft|CameraWithoutDOFAction
+  - first:
+      74: 1497609005106416469
+    second: SingleTurboLaserFrontLeft|SingleTurboLaserBackLeftAction
+  - first:
+      74: 5053840978909046812
+    second: SingleTurboLaserFrontLeft|SingleTurboLaserBackRightAction
+  - first:
+      74: -2624924281970189332
+    second: SingleTurboLaserFrontLeft|SingleTurboLaserFrontLeftAction
+  - first:
+      74: 2545263631610352036
+    second: SingleTurboLaserFrontLeft|SingleTurboLaserFrontRightAction
+  - first:
+      74: 166177038445265995
+    second: SingleTurboLaserFrontLeft|TieFighterAction
+  - first:
+      74: 1457455668657320304
+    second: SingleTurboLaserFrontRight|CameraWithDOFAction
+  - first:
+      74: 7765806323086030312
+    second: SingleTurboLaserFrontRight|CameraWithoutDOFAction
+  - first:
+      74: 959948866808473675
+    second: SingleTurboLaserFrontRight|SingleTurboLaserBackLeftAction
+  - first:
+      74: -7990728926436983478
+    second: SingleTurboLaserFrontRight|SingleTurboLaserBackRightAction
+  - first:
+      74: -3583485804414086605
+    second: SingleTurboLaserFrontRight|SingleTurboLaserFrontLeftAction
+  - first:
+      74: -2932338736963583878
+    second: SingleTurboLaserFrontRight|SingleTurboLaserFrontRightAction
+  - first:
+      74: -3825655514828829297
+    second: SingleTurboLaserFrontRight|TieFighterAction
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BlueEngineGlow
+    second: {fileID: 2100000, guid: 3f6e859ced740d840af0997f66edf5f3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ReflectiveGlass
+    second: {fileID: 2100000, guid: 7477b821301efe04d8a6cd9571d4f750, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ScratchedMetal
+    second: {fileID: 2100000, guid: 9c2a5551b72c5d9419dabee5fc90622b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ScratchedMetalDark
+    second: {fileID: 2100000, guid: 4656e60b01447454f8bbf2791c204ff9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ScratchedMetalRed
+    second: {fileID: 2100000, guid: 4277e832a580dbf4a8961eb6906531f7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ScratchedMetalWhite
+    second: {fileID: 2100000, guid: 21dd679aed254d940ab3876063354652, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
